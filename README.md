@@ -173,7 +173,7 @@ JSON 파일 수정으로 쉽게 게임 데이터 관리:
 
 ## 👨‍💻 제작자
 
-**MAHYUN** - [GitHub](https://github.com/mahyun-dev)
+**Mahyun Dev** - [GitHub](https://github.com/mahyun-dev)
 
 ## 🙏 감사 인사
 
@@ -183,4 +183,5 @@ JSON 파일 수정으로 쉽게 게임 데이터 관리:
 
 **버전**: v1.0  
 **최종 업데이트**: 2025-12-09  
+
 **다음 업데이트**: v1.1 (랭킹 시스템 추가 예정)
