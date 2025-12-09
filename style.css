@@ -1,0 +1,1025 @@
+/* 검 강화하기 게임 스타일 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    overflow-x: hidden;
+    user-select: none;
+}
+
+#game-container {
+    max-width: 400px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: #f8f9fa;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+/* 상단 정보 바 */
+#top-bar {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500;
+}
+
+#gold-display {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* 골드 수입 표시 */
+#gold-income-display {
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px 0;
+    position: relative;
+}
+
+.gold-income-text {
+    color: #27ae60;
+    font-weight: bold;
+    font-size: 16px;
+    position: absolute;
+    animation: goldIncomeFade 1s ease-out forwards;
+}
+
+@keyframes goldIncomeFade {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* 메인 게임 영역 */
+#main-game {
+    padding: 20px;
+    text-align: center;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#sword-container {
+    margin-bottom: 30px;
+}
+
+#sword-visual {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+#sword-image {
+    width: 150px;
+    height: 150px;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+    object-fit: contain;
+}
+
+#sword-image:hover {
+    transform: scale(1.05);
+}
+
+#sword-image:active {
+    transform: scale(0.95);
+}
+
+#sword-info {
+    margin-top: 10px;
+}
+
+#sword-level {
+    font-size: 24px;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+#sword-name {
+    font-size: 18px;
+    color: #2c3e50;
+    margin-top: 5px;
+}
+
+#sword-stats {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+#sword-stats div {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+/* 게임 버튼들 */
+#game-buttons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.game-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.game-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.game-btn:active {
+    transform: translateY(0);
+}
+
+.game-btn:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* 강화 진행 바 */
+#progress-container {
+    width: 100%;
+    max-width: 300px;
+}
+
+#progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #ecf0f1;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+#progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #e74c3c, #c0392b);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+#progress-text {
+    font-size: 14px;
+    color: #7f8c8d;
+}
+
+/* 하단 메뉴 */
+#bottom-menu {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #7f8c8d;
+    transition: color 0.3s ease;
+}
+
+.menu-btn:hover {
+    color: #3498db;
+}
+
+.menu-btn.active {
+    color: #3498db;
+    font-weight: bold;
+}
+
+/* 모달 창들 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal {
+    background: white;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 350px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #7f8c8d;
+}
+
+.modal-content {
+    padding: 20px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.confirm-btn {
+    background: linear-gradient(135deg, #27ae60, #229954);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.confirm-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+.cancel-btn {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+/* 상점 탭 */
+.shop-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #7f8c8d;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    color: #3498db;
+    border-bottom-color: #3498db;
+}
+
+/* 상점 아이템 */
+.shop-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #ecf0f1;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+}
+
+.shop-item-info {
+    flex: 1;
+}
+
+.shop-item-name {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.shop-item-desc {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 2px;
+}
+
+.shop-item-price {
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.shop-buy-btn {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.3s ease;
+}
+
+.shop-buy-btn:hover {
+    background: #229954;
+}
+
+/* 대장간 조합 */
+.forge-recipe {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #ecf0f1;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+}
+
+.forge-recipe-info {
+    flex: 1;
+}
+
+.forge-recipe-name {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.forge-recipe-materials {
+    font-size: 12px;
+    color: #e74c3c;
+    margin-top: 2px;
+}
+
+.forge-recipe-result {
+    font-size: 12px;
+    color: #27ae60;
+    margin-top: 2px;
+}
+
+.forge-craft-btn {
+    background: #f39c12;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.3s ease;
+}
+
+.forge-craft-btn:hover {
+    background: #e67e22;
+}
+
+/* 알림 시스템 */
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+    pointer-events: none;
+}
+
+.notification {
+    background: #2ecc71;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease;
+    font-weight: bold;
+}
+
+.notification.error {
+    background: #e74c3c;
+}
+
+.notification.warning {
+    background: #f39c12;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 로딩 화면 */
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    font-size: 18px;
+    color: #2c3e50;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 480px) {
+    #game-container {
+        max-width: 100%;
+    }
+
+    #sword-image {
+        width: 112.5px;
+        height: 112.5px;
+    }
+
+    #game-buttons {
+        align-items: center;
+    }
+
+    .game-btn {
+        padding: 12px 25px;
+        font-size: 14px;
+    }
+}
+
+/* 강화 성공/실패 애니메이션 */
+@keyframes successGlow {
+    0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+}
+
+@keyframes failShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.success-animation {
+    animation: successGlow 0.6s ease;
+}
+
+.fail-animation {
+    animation: failShake 0.5s ease;
+}
+
+/* 크리티컬 강화 애니메이션 */
+@keyframes criticalGlow {
+    0% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.7); }
+    50% { box-shadow: 0 0 0 20px rgba(241, 196, 15, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0); }
+}
+
+.critical-animation {
+    animation: criticalGlow 1s ease;
+}
+
+/* 검 이미지 색상 및 배경 효과 */
+.main-game-area {
+    transition: background 0.5s ease;
+}
+
+.main-game-area.bg-red_aura {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.2));
+}
+
+.main-game-area.bg-light_aura {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(248, 249, 250, 0.2));
+}
+
+.main-game-area.bg-orange_aura {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(245, 124, 0, 0.2));
+}
+
+.main-game-area.bg-brown_aura {
+    background: linear-gradient(135deg, rgba(121, 85, 72, 0.1), rgba(93, 64, 55, 0.2));
+}
+
+.main-game-area.bg-gold_aura {
+    background: linear-gradient(135deg, rgba(241, 196, 15, 0.1), rgba(230, 126, 34, 0.2));
+}
+
+.main-game-area.bg-purple_aura {
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.1), rgba(142, 68, 173, 0.2));
+}
+
+.main-game-area.bg-green_aura {
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(34, 197, 94, 0.2));
+}
+
+.main-game-area.bg-time_aura {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.2));
+}
+
+.main-game-area.bg-void_aura {
+    background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(52, 73, 94, 0.2));
+}
+
+.main-game-area.bg-star_aura {
+    background: linear-gradient(135deg, rgba(236, 240, 241, 0.1), rgba(189, 195, 199, 0.2));
+}
+
+.main-game-area.bg-cosmic_aura {
+    background: linear-gradient(135deg, rgba(63, 81, 181, 0.1), rgba(48, 63, 159, 0.2));
+}
+
+.main-game-area.bg-legendary_aura {
+    background: linear-gradient(135deg, rgba(230, 126, 34, 0.1), rgba(211, 84, 0, 0.2));
+}
+
+.main-game-area.bg-divine_aura {
+    background: linear-gradient(135deg, rgba(241, 196, 15, 0.1), rgba(243, 156, 18, 0.2));
+}
+
+.main-game-area.bg-infinite_aura {
+    background: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(194, 24, 91, 0.2));
+}
+
+.main-game-area.bg-absolute_aura {
+    background: linear-gradient(135deg, rgba(103, 58, 183, 0.1), rgba(81, 45, 168, 0.2));
+}
+
+.main-game-area.bg-transcend_aura {
+    background: linear-gradient(135deg, rgba(0, 188, 212, 0.1), rgba(0, 151, 167, 0.2));
+}
+
+.main-game-area.bg-life_aura {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(56, 142, 60, 0.2));
+}
+
+.main-game-area.bg-fate_aura {
+    background: linear-gradient(135deg, rgba(255, 87, 34, 0.1), rgba(230, 74, 25, 0.2));
+}
+
+.main-game-area.bg-chaos_aura {
+    background: linear-gradient(135deg, rgba(121, 85, 72, 0.1), rgba(93, 64, 55, 0.2));
+}
+
+.main-game-area.bg-primordial_aura {
+    background: linear-gradient(135deg, rgba(96, 125, 139, 0.1), rgba(69, 90, 100, 0.2));
+}
+
+.main-game-area.bg-god_aura {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.2));
+}
+
+/* 업적 시스템 */
+#achievements-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.achievement-item {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 2px solid #ecf0f1;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.achievement-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.achievement-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.achievement-item.completed {
+    border-color: #27ae60;
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+}
+
+.achievement-item.locked {
+    border-color: #bdc3c7;
+    opacity: 0.7;
+}
+
+.achievement-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.achievement-condition {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-bottom: 8px;
+}
+
+.achievement-progress {
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #ecf0f1;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.achievement-item.completed .progress-fill {
+    background: linear-gradient(90deg, #27ae60, #229954);
+}
+
+.progress-text {
+    font-size: 12px;
+    color: #7f8c8d;
+    text-align: right;
+}
+
+.achievement-detail-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+}
+
+.achievement-detail-section {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #3498db;
+}
+
+.achievement-detail-section h3 {
+    margin: 0 0 8px 0;
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.achievement-detail-section p {
+    margin: 0;
+    color: #7f8c8d;
+    line-height: 1.4;
+}
+
+.achievement-detail-section .completed {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.achievement-detail-section .incomplete {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.achievement-reward {
+    font-size: 14px;
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.achievement-item.completed .achievement-reward {
+    color: #27ae60;
+}
+
+/* 업적 상세 모달 */
+.achievement-detail-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.achievement-detail-section h3 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.achievement-detail-section p {
+    margin: 0;
+    color: #7f8c8d;
+    line-height: 1.4;
+}
+
+.achievement-detail-section .completed {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.achievement-detail-section .incomplete {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+/* 창고 시스템 */
+#equipment-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.equipment-slot {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 2px solid #ecf0f1;
+    transition: all 0.3s ease;
+}
+
+.equipment-slot:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.slot-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.slot-item {
+    font-size: 16px;
+    color: #27ae60;
+    font-weight: 500;
+}
+
+.equipment-slot .slot-item:empty::before {
+    content: "비어있음";
+    color: #bdc3c7;
+}
+
+#inventory-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.inventory-item {
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid #ecf0f1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.inventory-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.item-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+/* 설정 시스템 */
+.settings-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.settings-section h3 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.settings-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.settings-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.settings-btn.danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.settings-btn.danger:hover {
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.settings-desc {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 10px;
+    line-height: 1.4;
+}
+
+/* 업적 상세 모달 */
+#achievement-detail-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+}
+
+#achievement-detail-modal .modal-content {
+    padding: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+#achievement-detail-modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+#achievement-detail-modal .modal-header h2 {
+    color: #2c3e50;
+    font-size: 24px;
+    margin: 0;
+}
+
+#achievement-detail-modal .close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #7f8c8d;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+#achievement-detail-modal .close-btn:hover {
+    background: #f8f9fa;
+    color: #e74c3c;
+}
+
+#achievement-detail-content .achievement-detail-section {
+    margin-bottom: 20px;
+}
+
+#achievement-detail-content .achievement-detail-section h3 {
+    color: #2c3e50;
+    font-size: 18px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+}
+
+#achievement-detail-content .achievement-detail-section p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+#achievement-detail-content .achievement-detail-section .completed {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+#achievement-detail-content .achievement-detail-section .locked {
+    color: #e74c3c;
+    font-weight: bold;
+}

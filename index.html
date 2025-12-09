@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>검 강화하기 - Idle Clicker RPG</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <!-- 상단 정보 바 -->
+        <div id="top-bar">
+            <div id="protection-count">방지권: <span id="protection-display">0</span>개</div>
+            <div id="gold-display">₩<span id="gold-amount">1000</span></div>
+        </div>
+
+        <!-- 골드 수입 표시 -->
+        <div id="gold-income-display"></div>
+
+        <!-- 메인 게임 영역 -->
+        <div id="main-game" class="main-game-area">
+            <div id="sword-container">
+                <div id="sword-visual">
+                    <img id="sword-image" src="assets/weapons/sword_0.png" alt="검">
+                    <div id="sword-info">
+                        <div id="sword-level">+0</div>
+                        <div id="sword-name">녹슨 검</div>
+                    </div>
+                </div>
+                <div id="sword-stats">
+                    <div>클릭당: ₩<span id="click-power">1</span></div>
+                    <div>판매가: ₩<span id="sell-price">0</span></div>
+                    <div>성공률: <span id="success-rate">100</span></div>
+                </div>
+            </div>
+
+            <!-- 강화 진행 바 -->
+            <div id="progress-container">
+                <div id="progress-bar">
+                    <div id="progress-fill"></div>
+                </div>
+                <div id="progress-text">준비 중...</div>
+            </div>
+        </div>
+
+        <!-- 게임 버튼들 -->
+        <div id="game-buttons">
+            <button id="upgrade-btn" class="game-btn">강화</button>
+            <button id="sell-btn" class="game-btn">판매</button>
+        </div>
+
+        <!-- 하단 메뉴 -->
+        <div id="bottom-menu">
+            <button id="inventory-btn" class="menu-btn">창고</button>
+            <button id="shop-btn" class="menu-btn">상점</button>
+            <button id="forge-btn" class="menu-btn">조합소</button>
+            <button id="achievements-btn" class="menu-btn">업적</button>
+            <button id="settings-btn" class="menu-btn">설정</button>
+        </div>
+
+        <!-- 모달 창들 -->
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <!-- 상점 모달 -->
+            <div id="shop-modal" class="modal hidden">
+                <div class="modal-header">
+                    <h2>상점</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="shop-tabs">
+                        <button class="tab-btn active" data-tab="warp">워프권</button>
+                        <button class="tab-btn" data-tab="protection">방지권</button>
+                        <button class="tab-btn" data-tab="special">특별 아이템</button>
+                    </div>
+                    <div id="shop-items"></div>
+                </div>
+            </div>
+
+            <!-- 창고 모달 -->
+            <div id="inventory-modal" class="modal hidden">
+                <div class="modal-header">
+                    <h2>창고</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div id="equipment-slots"></div>
+                    <div id="inventory-items"></div>
+                </div>
+            </div>
+
+            <!-- 조합소 모달 -->
+            <div id="forge-modal" class="modal hidden">
+                <div class="modal-header">
+                    <h2>조합소</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div id="forge-recipes"></div>
+                </div>
+            </div>
+
+            <!-- 업적 모달 -->
+            <div id="achievements-modal" class="modal hidden">
+                <div class="modal-header">
+                    <h2>업적</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div id="achievements-list"></div>
+                </div>
+            </div>
+
+            <!-- 업적 상세 모달 -->
+            <div id="achievement-detail-modal" class="modal hidden">
+                <div class="modal-header">
+                    <h2 id="achievement-detail-title">업적 상세</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div id="achievement-detail-content"></div>
+                </div>
+            </div>
+
+            <!-- 판매 확인 모달 -->
+            <div id="settings-modal" class="modal hidden">
+                <div class="modal-header">
+                    <h2>설정</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="settings-section">
+                        <h3>게임 데이터</h3>
+                        <button id="reset-data-btn" class="settings-btn danger">데이터 초기화</button>
+                        <p class="settings-desc">모든 게임 데이터를 삭제하고 처음부터 시작합니다.</p>
+                    </div>
+                    <div class="settings-section">
+                        <h3>저장/불러오기</h3>
+                        <button id="export-data-btn" class="settings-btn">데이터 내보내기</button>
+                        <button id="import-data-btn" class="settings-btn">데이터 불러오기</button>
+                        <p class="settings-desc">게임 데이터를 파일로 저장하거나 불러옵니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 판매 확인 모달 -->
+            <div id="sell-confirm-modal" class="modal hidden">
+                <div class="modal-header">
+                    <h2>검 판매</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <p id="sell-confirm-text"></p>
+                    <div class="modal-buttons">
+                        <button id="sell-confirm-yes" class="confirm-btn">예</button>
+                        <button id="sell-confirm-no" class="cancel-btn">아니오</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 알림 시스템 -->
+        <div id="notification-container"></div>
+
+        <!-- 로딩 화면 -->
+        <div id="loading-screen">
+            <div class="loading-spinner"></div>
+            <div>게임을 불러오는 중...</div>
+        </div>
+    </div>
+
+    <script src="data/weapons.js"></script>
+    <script src="data/shop.js"></script>
+    <script src="data/forge.js"></script>
+    <script src="data/equipment.js"></script>
+    <script src="data/achievements.js"></script>
+    <script src="data/titles.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
