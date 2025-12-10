@@ -1,4 +1,4 @@
-// 대장간 조합 데이터
+// 조합소 조합 데이터
 const FORGE_RECIPES = [
     {
         id: "evil_soul_crystal",
@@ -75,55 +75,5 @@ const FORGE_RECIPES = [
     }
 ];
 
-// 재료 획득 데이터
-const MATERIAL_DROPS = {
-    evil_soul: {
-        name: "사악한 영혼",
-        dropRate: 5,
-        minLevel: 5,
-        description: "+5 이상 강화 성공 시 드롭"
-    },
-    axe_powder: {
-        name: "도끼 가루",
-        dropRate: 3,
-        minLevel: 8,
-        description: "+8 이상 강화 성공 시 드롭"
-    },
-    transparent_material: {
-        name: "투명 물질",
-        dropRate: 2,
-        minLevel: 10,
-        description: "+10 이상 강화 성공 시 드롭"
-    },
-    ancient_fragment: {
-        name: "고대 파편",
-        dropRate: 1,
-        minLevel: 15,
-        description: "+15 이상 강화 성공 시 드롭"
-    },
-    mysterious_powder: {
-        name: "신비한 가루",
-        dropRate: 0.5,
-        minLevel: 20,
-        description: "+20 이상 강화 성공 시 드롭"
-    },
-    legend_piece: {
-        name: "전설 조각",
-        dropRate: 0.2,
-        minLevel: 25,
-        description: "+25 이상 강화 성공 시 드롭"
-    },
-    luck_powder: {
-        name: "행운의 가루",
-        dropRate: 10,
-        minLevel: 0,
-        description: "모든 강화 시도 시 드롭 (일일 5개 무료)"
-    },
-    blessing_crystal: {
-        name: "축복의 결정",
-        dropRate: 100,
-        minLevel: 0,
-        description: "크리티컬 강화 성공 시 드롭",
-        special: true
-    }
-};
+// MATERIAL_DROPS는 items.js의 ITEMS.materials를 사용하도록 호환성 유지
+const MATERIAL_DROPS = ITEMS.materials;

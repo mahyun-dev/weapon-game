@@ -6,6 +6,7 @@ const WEAPONS = [
         upgradeCost: 300,
         sellPrice: 0,
         successRate: 100,
+        clickGold: 1,
         specialEffect: null,
         visual: {
             image: "assets/weapons/sword_0.png",
@@ -20,6 +21,7 @@ const WEAPONS = [
         upgradeCost: 300,
         sellPrice: 150,
         successRate: 100,
+        clickGold: 2,
         specialEffect: null,
         visual: {
             image: "assets/weapons/sword_1.png",
@@ -34,6 +36,7 @@ const WEAPONS = [
         upgradeCost: 500,
         sellPrice: 400,
         successRate: 100,
+        clickGold: 3,
         specialEffect: null,
         visual: {
             image: "assets/weapons/sword_2.png",
@@ -48,6 +51,7 @@ const WEAPONS = [
         upgradeCost: 500,
         sellPrice: 600,
         successRate: 95,
+        clickGold: 5,
         specialEffect: null,
         visual: {
             image: "assets/weapons/sword_3.png",
@@ -62,6 +66,7 @@ const WEAPONS = [
         upgradeCost: 1000,
         sellPrice: 800,
         successRate: 95,
+        clickGold: 7,
         specialEffect: "화염 효과",
         visual: {
             image: "assets/weapons/sword_4.png",
@@ -76,6 +81,7 @@ const WEAPONS = [
         upgradeCost: 1500,
         sellPrice: 1200,
         successRate: 90,
+        clickGold: 10,
         specialEffect: "빙결 효과",
         visual: {
             image: "assets/weapons/sword_5.png",
@@ -90,6 +96,7 @@ const WEAPONS = [
         upgradeCost: 2500,
         sellPrice: 2000,
         successRate: 90,
+        clickGold: 15,
         specialEffect: null,
         visual: {
             image: "assets/weapons/sword_6.png",
@@ -104,6 +111,7 @@ const WEAPONS = [
         upgradeCost: 5000,
         sellPrice: 4000,
         successRate: 85,
+        clickGold: 20,
         specialEffect: "드래곤 오라",
         visual: {
             image: "assets/weapons/sword_7.png",
@@ -118,6 +126,7 @@ const WEAPONS = [
         upgradeCost: 10000,
         sellPrice: 8500,
         successRate: 85,
+        clickGold: 30,
         specialEffect: "신성한 빛",
         visual: {
             image: "assets/weapons/sword_8.png",
@@ -132,6 +141,7 @@ const WEAPONS = [
         upgradeCost: 15000,
         sellPrice: 13000,
         successRate: 80,
+        clickGold: 40,
         specialEffect: "암흑 오라",
         visual: {
             image: "assets/weapons/sword_9.png",
@@ -146,6 +156,7 @@ const WEAPONS = [
         upgradeCost: 20000,
         sellPrice: 17000,
         successRate: 80,
+        clickGold: 50,
         specialEffect: "정령 가호",
         visual: {
             image: "assets/weapons/sword_10.png",
@@ -160,6 +171,7 @@ const WEAPONS = [
         upgradeCost: 30000,
         sellPrice: 26000,
         successRate: 75,
+        clickGold: 75,
         specialEffect: "흡혈 효과",
         visual: {
             image: "assets/weapons/sword_11.png",
@@ -174,6 +186,7 @@ const WEAPONS = [
         upgradeCost: 50000,
         sellPrice: 43000,
         successRate: 75,
+        clickGold: 100,
         specialEffect: "번개 효과",
         visual: {
             image: "assets/weapons/sword_12.png",
@@ -188,6 +201,7 @@ const WEAPONS = [
         upgradeCost: 75000,
         sellPrice: 65000,
         successRate: 70,
+        clickGold: 130,
         specialEffect: "영혼 공격",
         visual: {
             image: "assets/weapons/sword_13.png",
@@ -202,6 +216,7 @@ const WEAPONS = [
         upgradeCost: 100000,
         sellPrice: 88000,
         successRate: 70,
+        clickGold: 160,
         specialEffect: "지진 효과",
         visual: {
             image: "assets/weapons/sword_14.png",
@@ -216,6 +231,7 @@ const WEAPONS = [
         upgradeCost: 150000,
         sellPrice: 135000,
         successRate: 65,
+        clickGold: 200,
         specialEffect: "시간 왜곡",
         visual: {
             image: "assets/weapons/sword_15.png",
@@ -230,6 +246,7 @@ const WEAPONS = [
         upgradeCost: 250000,
         sellPrice: 225000,
         successRate: 65,
+        clickGold: 300,
         specialEffect: "공간 균열",
         visual: {
             image: "assets/weapons/sword_16.png",
@@ -244,6 +261,7 @@ const WEAPONS = [
         upgradeCost: 400000,
         sellPrice: 365000,
         successRate: 60,
+        clickGold: 400,
         specialEffect: "별빛 폭발",
         visual: {
             image: "assets/weapons/sword_17.png",
@@ -258,6 +276,7 @@ const WEAPONS = [
         upgradeCost: 650000,
         sellPrice: 600000,
         successRate: 60,
+        clickGold: 550,
         specialEffect: "우주 오라",
         visual: {
             image: "assets/weapons/sword_18.png",
@@ -272,6 +291,7 @@ const WEAPONS = [
         upgradeCost: 1000000,
         sellPrice: 930000,
         successRate: 55,
+        clickGold: 650,
         specialEffect: "신화 각성",
         visual: {
             image: "assets/weapons/sword_19.png",
@@ -286,6 +306,7 @@ const WEAPONS = [
         upgradeCost: 1500000,
         sellPrice: 1400000,
         successRate: 55,
+        clickGold: 800,
         specialEffect: "창조의 힘",
         visual: {
             image: "assets/weapons/sword_20.png",
@@ -300,6 +321,7 @@ const WEAPONS = [
         upgradeCost: 2500000,
         sellPrice: 2350000,
         successRate: 50,
+        clickGold: 1200,
         specialEffect: "무한 에너지",
         visual: {
             image: "assets/weapons/sword_21.png",
@@ -314,6 +336,7 @@ const WEAPONS = [
         upgradeCost: 4000000,
         sellPrice: 3800000,
         successRate: 50,
+        clickGold: 1600,
         specialEffect: "절대 지배",
         visual: {
             image: "assets/weapons/sword_22.png",
@@ -328,6 +351,7 @@ const WEAPONS = [
         upgradeCost: 6500000,
         sellPrice: 6200000,
         successRate: 45,
+        clickGold: 2000,
         specialEffect: "차원 초월",
         visual: {
             image: "assets/weapons/sword_23.png",
@@ -342,6 +366,7 @@ const WEAPONS = [
         upgradeCost: 10000000,
         sellPrice: 9600000,
         successRate: 45,
+        clickGold: 2400,
         specialEffect: "생명 순환",
         visual: {
             image: "assets/weapons/sword_24.png",
@@ -356,6 +381,7 @@ const WEAPONS = [
         upgradeCost: 16000000,
         sellPrice: 15400000,
         successRate: 40,
+        clickGold: 3000,
         specialEffect: "운명 조작",
         visual: {
             image: "assets/weapons/sword_25.png",
@@ -370,6 +396,7 @@ const WEAPONS = [
         upgradeCost: 25000000,
         sellPrice: 24200000,
         successRate: 40,
+        clickGold: 5000,
         specialEffect: "혼돈의 힘",
         visual: {
             image: "assets/weapons/sword_26.png",
@@ -384,6 +411,7 @@ const WEAPONS = [
         upgradeCost: 40000000,
         sellPrice: 38800000,
         successRate: 35,
+        clickGold: 8000,
         specialEffect: "우주 파괴",
         visual: {
             image: "assets/weapons/sword_27.png",
@@ -398,6 +426,7 @@ const WEAPONS = [
         upgradeCost: 65000000,
         sellPrice: 63200000,
         successRate: 35,
+        clickGold: 12000,
         specialEffect: "에테르 흡수",
         visual: {
             image: "assets/weapons/sword_28.png",
@@ -412,6 +441,7 @@ const WEAPONS = [
         upgradeCost: 100000000,
         sellPrice: 97500000,
         successRate: 30,
+        clickGold: 16000,
         specialEffect: "원초의 힘",
         visual: {
             image: "assets/weapons/sword_29.png",
@@ -426,6 +456,7 @@ const WEAPONS = [
         upgradeCost: 150000000,
         sellPrice: 145000000,
         successRate: 30,
+        clickGold: 20000,
         specialEffect: "모든 것을 베는 검",
         visual: {
             image: "assets/weapons/sword_30.png",

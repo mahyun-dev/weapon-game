@@ -11,7 +11,7 @@
     <div id="game-container">
         <!-- 상단 정보 바 -->
         <div id="top-bar">
-            <div id="protection-count">방지권: <span id="protection-display">0</span>개</div>
+            <div id="title-display">칭호: <span id="active-title">초보 모험가</span></div>
             <div id="gold-display">₩<span id="gold-amount">1000</span></div>
         </div>
 
@@ -51,12 +51,18 @@
         </div>
 
         <!-- 하단 메뉴 -->
-        <div id="bottom-menu">
+        <!-- [CHEAT MODE] 치트 삭제 시: class="bottom-menu" 제거하고 <div id="bottom-menu">만 남기기 -->
+        <div id="bottom-menu" class="bottom-menu">
             <button id="inventory-btn" class="menu-btn">창고</button>
             <button id="shop-btn" class="menu-btn">상점</button>
             <button id="forge-btn" class="menu-btn">조합소</button>
+            <button id="title-btn" class="menu-btn">칭호</button>
             <button id="achievements-btn" class="menu-btn">업적</button>
             <button id="settings-btn" class="menu-btn">설정</button>
+            <!-- [CHEAT MODE START] 치트 모드 버튼 - 삭제 시 이 줄과 아래 두 줄 삭제 -->
+            <button id="cheat-btn" class="menu-btn" style="display: none;">🔧</button>
+            <button id="admin-btn" class="menu-btn" style="display: none;">⚙️</button>
+            <!-- [CHEAT MODE END] -->
         </div>
 
         <!-- 모달 창들 -->
@@ -122,6 +128,17 @@
                 </div>
             </div>
 
+            <!-- 칭호 모달 -->
+            <div id="title-modal" class="modal hidden">
+                <div class="modal-header">
+                    <h2>칭호</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div id="titles-list"></div>
+                </div>
+            </div>
+
             <!-- 판매 확인 모달 -->
             <div id="settings-modal" class="modal hidden">
                 <div class="modal-header">
@@ -157,6 +174,174 @@
                     </div>
                 </div>
             </div>
+
+            <!-- [CHEAT MODE START] 치트 모드 모달 전체 - 삭제 시 이 줄부터 [CHEAT MODE END]까지 모두 삭제 -->
+            <!-- 치트 모드 모달 -->
+            <div id="cheat-modal" class="modal hidden">
+                <div class="modal-header">
+                    <h2>🔧 치트 모드</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="cheat-section">
+                        <h3>골드 관리</h3>
+                        <div class="cheat-input-group vertical">
+                            <input type="number" id="cheat-gold-input" placeholder="골드 입력" min="0">
+                            <div class="cheat-button-row">
+                                <button id="cheat-set-gold-btn" class="cheat-btn">설정</button>
+                                <button id="cheat-add-gold-btn" class="cheat-btn">추가</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cheat-section">
+                        <h3>무기 관리</h3>
+                        <div class="cheat-input-group vertical">
+                            <select id="cheat-weapon-select">
+                                <!-- 무기 옵션은 JavaScript에서 동적 생성 -->
+                            </select>
+                            <button id="cheat-set-weapon-btn" class="cheat-btn full-width">무기 변경</button>
+                        </div>
+                        <div class="cheat-input-group vertical">
+                            <input type="number" id="cheat-level-input" placeholder="강화 레벨" min="0" max="30">
+                            <button id="cheat-set-level-btn" class="cheat-btn full-width">레벨 설정</button>
+                        </div>
+                    </div>
+
+                    <div class="cheat-section">
+                        <h3>아이템 관리</h3>
+                        <div class="cheat-input-group vertical">
+                            <select id="cheat-item-select">
+                                <!-- 아이템 옵션은 JavaScript에서 동적 생성 -->
+                            </select>
+                            <input type="number" id="cheat-item-count" placeholder="수량" min="1" value="1">
+                            <button id="cheat-add-item-btn" class="cheat-btn full-width">추가</button>
+                        </div>
+                    </div>
+
+                    <div class="cheat-section">
+                        <h3>장비 관리</h3>
+                        <div class="cheat-input-group vertical">
+                            <select id="cheat-equipment-select">
+                                <!-- 장비 옵션은 JavaScript에서 동적 생성 -->
+                            </select>
+                            <button id="cheat-add-equipment-btn" class="cheat-btn full-width">장비 추가</button>
+                        </div>
+                    </div>
+
+                    <div class="cheat-section">
+                        <h3>업적/칭호 관리</h3>
+                        <div class="cheat-input-group">
+                            <button id="cheat-unlock-all-achievements-btn" class="cheat-btn full-width">모든 업적 달성</button>
+                        </div>
+                        <div class="cheat-input-group">
+                            <button id="cheat-unlock-all-titles-btn" class="cheat-btn full-width">모든 칭호 획득</button>
+                        </div>
+                    </div>
+
+                    <div class="cheat-section">
+                        <h3>위험 구역</h3>
+                        <div class="cheat-input-group">
+                            <button id="cheat-reset-game-btn" class="cheat-btn danger full-width">게임 초기화</button>
+                        </div>
+                    </div>
+
+                    <p class="cheat-warning">⚠️ 치트 모드는 게임 재미를 감소시킬 수 있습니다.</p>
+                </div>
+            </div>
+            <!-- [CHEAT MODE END] 치트 모드 모달 끝 -->
+
+            <!-- [ADMIN MODE START] 관리자 모드 모달 - 게임 데이터 파일 편집기 -->
+            <div id="admin-modal" class="modal hidden">
+                <div class="modal-header">
+                    <h2>⚙️ 게임 데이터 편집기</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="admin-tabs">
+                        <button class="admin-tab-btn active" data-file="items">items.js</button>
+                        <button class="admin-tab-btn" data-file="weapons">weapons.js</button>
+                        <button class="admin-tab-btn" data-file="equipment">equipment.js</button>
+                        <button class="admin-tab-btn" data-file="shop">shop.js</button>
+                        <button class="admin-tab-btn" data-file="achievements">achievements.js</button>
+                        <button class="admin-tab-btn" data-file="titles">titles.js</button>
+                        <button class="admin-tab-btn" data-file="forge">forge.js</button>
+                    </div>
+
+                    <div class="admin-file-info">
+                        <span id="admin-current-file">items.js</span>
+                        <span id="admin-item-count">0 items</span>
+                    </div>
+
+                    <div id="admin-editor-container">
+                        <!-- items.js 편집기 -->
+                        <div id="admin-file-items" class="admin-file-content">
+                            <div class="admin-controls">
+                                <button id="admin-add-special-item" class="admin-btn-small">+ 특수 아이템</button>
+                                <button id="admin-add-material-item" class="admin-btn-small">+ 재료</button>
+                                <button id="admin-add-protection-item" class="admin-btn-small">+ 방지권</button>
+                            </div>
+                            <div id="admin-items-list" class="admin-data-list"></div>
+                        </div>
+
+                        <!-- weapons.js 편집기 -->
+                        <div id="admin-file-weapons" class="admin-file-content hidden">
+                            <div class="admin-controls">
+                                <button id="admin-add-weapon" class="admin-btn-small">+ 무기 추가</button>
+                            </div>
+                            <div id="admin-weapons-list" class="admin-data-list"></div>
+                        </div>
+
+                        <!-- equipment.js 편집기 -->
+                        <div id="admin-file-equipment" class="admin-file-content hidden">
+                            <div class="admin-controls">
+                                <button id="admin-add-equipment" class="admin-btn-small">+ 장비 추가</button>
+                            </div>
+                            <div id="admin-equipment-list" class="admin-data-list"></div>
+                        </div>
+
+                        <!-- shop.js 편집기 -->
+                        <div id="admin-file-shop" class="admin-file-content hidden">
+                            <div class="admin-controls">
+                                <button id="admin-add-shop-item" class="admin-btn-small">+ 상점 아이템 추가</button>
+                            </div>
+                            <div id="admin-shop-list" class="admin-data-list"></div>
+                        </div>
+
+                        <!-- achievements.js 편집기 -->
+                        <div id="admin-file-achievements" class="admin-file-content hidden">
+                            <div class="admin-controls">
+                                <button id="admin-add-achievement" class="admin-btn-small">+ 업적 추가</button>
+                            </div>
+                            <div id="admin-achievements-list" class="admin-data-list"></div>
+                        </div>
+
+                        <!-- titles.js 편집기 -->
+                        <div id="admin-file-titles" class="admin-file-content hidden">
+                            <div class="admin-controls">
+                                <button id="admin-add-title" class="admin-btn-small">+ 칭호 추가</button>
+                            </div>
+                            <div id="admin-titles-list" class="admin-data-list"></div>
+                        </div>
+
+                        <!-- forge.js 편집기 -->
+                        <div id="admin-file-forge" class="admin-file-content hidden">
+                            <div class="admin-controls">
+                                <button id="admin-add-recipe" class="admin-btn-small">+ 레시피 추가</button>
+                            </div>
+                            <div id="admin-forge-list" class="admin-data-list"></div>
+                        </div>
+                    </div>
+
+                    <div class="admin-actions">
+                        <button id="admin-export-json" class="admin-btn">📥 JSON 다운로드</button>
+                        <button id="admin-copy-json" class="admin-btn">📋 JSON 복사</button>
+                    </div>
+
+                    <p class="cheat-warning">⚠️ 게임 데이터 파일을 직접 수정합니다. 변경사항을 적용하려면 JSON을 다운로드하여 해당 파일을 교체하세요.</p>
+                </div>
+            </div>
+            <!-- [ADMIN MODE END] 관리자 모드 모달 끝 -->
         </div>
 
         <!-- 알림 시스템 -->
@@ -170,6 +355,7 @@
     </div>
 
     <script src="data/weapons.js"></script>
+    <script src="data/items.js"></script>
     <script src="data/shop.js"></script>
     <script src="data/forge.js"></script>
     <script src="data/equipment.js"></script>
