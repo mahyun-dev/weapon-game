@@ -260,14 +260,16 @@ class SwordUpgradeGame {
         const weapon = WEAPONS[this.gameData.swordLevel];
         let basePower = weapon ? weapon.clickGold : 1;
 
-        // 워프권 효과
+        // 장비 효과 적용
+        Object.values(this.gameData.equipment).forEach(equipment => {
+            if (equipment && equipment.effect === 'clickGoldMultiplier') {
+                basePower *= (1 + equipment.value / 100);
+            }
+        });
+
+        // 특수 아이템 효과 적용
         if (this.gameData.equipment.warpTicket) {
             basePower *= this.gameData.equipment.warpTicket.value;
-        }
-
-        // 장비 효과
-        if (this.gameData.equipment.golden_ring) {
-            basePower *= (1 + this.gameData.equipment.golden_ring.value / 100);
         }
 
         // 활성 칭호 효과
@@ -318,7 +320,14 @@ class SwordUpgradeGame {
     calculateSuccessRate() {
         let baseRate = WEAPONS[this.gameData.swordLevel].successRate;
 
-        // 황금 망치 효과
+        // 장비 효과 적용
+        Object.values(this.gameData.equipment).forEach(equipment => {
+            if (equipment && equipment.effect === 'successRate') {
+                baseRate += equipment.value;
+            }
+        });
+
+        // 특수 아이템 효과 적용
         if (this.gameData.equipment.golden_hammer) {
             baseRate += this.gameData.equipment.golden_hammer.value;
         }
@@ -337,9 +346,9 @@ class SwordUpgradeGame {
             baseRate += charmCount * 3; // 부적당 3%
         }
 
-        // 대장장이의 팔찌 효과
-        if (this.gameData.equipment.blacksmith_bracelet) {
-            baseRate += this.gameData.equipment.blacksmith_bracelet.value;
+        // 영구 성공률 보너스 (특수 아이템 사용 효과)
+        if (this.gameData.stats.permanentSuccessRateBonus) {
+            baseRate += this.gameData.stats.permanentSuccessRateBonus;
         }
 
         // 활성 칭호 효과
@@ -480,12 +489,20 @@ class SwordUpgradeGame {
 
         // 각 재료별 드롭 확률 체크
         Object.entries(MATERIAL_DROPS).forEach(([materialId, material]) => {
-            if (level >= material.minLevel && Math.random() * 100 < material.dropRate) {
-                if (!this.gameData.inventory[materialId]) {
-                    this.gameData.inventory[materialId] = 0;
+            if (level >= material.minLevel) {
+                // 기본 드롭률에 보너스 적용
+                let dropRate = material.dropRate;
+                if (this.gameData.stats.materialDropRateBonus) {
+                    dropRate += this.gameData.stats.materialDropRateBonus;
                 }
-                this.gameData.inventory[materialId]++;
-                this.showNotification(`${material.name} 획득!`, 'success');
+                
+                if (Math.random() * 100 < dropRate) {
+                    if (!this.gameData.inventory[materialId]) {
+                        this.gameData.inventory[materialId] = 0;
+                    }
+                    this.gameData.inventory[materialId]++;
+                    this.showNotification(`${material.name} 획득!`, 'success');
+                }
             }
         });
     }
@@ -497,10 +514,18 @@ class SwordUpgradeGame {
 
         let sellPrice = currentWeapon.sellPrice;
         
-        // 대량 판매권 효과
-        if (this.gameData.inventory['bulk_sell_ticket'] && this.gameData.inventory['bulk_sell_ticket'] > 0) {
-            sellPrice *= 1.5; // 50% 증가
+        // 판매 가격 배율 적용
+        let multiplier = 1.0;
+        if (this.gameData.stats.sellMultiplierBonus) {
+            multiplier += this.gameData.stats.sellMultiplierBonus / 100;
         }
+        
+        // 대량 판매권 효과 (기존 방식 유지)
+        if (this.gameData.inventory['bulk_sell_ticket'] && this.gameData.inventory['bulk_sell_ticket'] > 0) {
+            multiplier *= 1.5; // 50% 증가
+        }
+        
+        sellPrice *= multiplier;
         
         this.gameData.gold += sellPrice;
         this.gameData.stats.totalGoldEarned += sellPrice;
@@ -1013,6 +1038,9 @@ class SwordUpgradeGame {
             if (count > 0) {
                 const itemName = this.getItemName(itemId);
                 const equipment = EQUIPMENT.find(item => item.id === itemId);
+                const specialItem = ITEMS.special[itemId];
+                const material = ITEMS.materials[itemId];
+                const protection = ITEMS.protections[itemId];
                 
                 const itemElement = document.createElement('div');
                 itemElement.className = 'inventory-item';
@@ -1021,25 +1049,276 @@ class SwordUpgradeGame {
                     <div class="item-count">x${count}</div>
                 `;
                 
-                // 장비 아이템이면 클릭해서 장착
+                // 장비 아이템이면 더블클릭으로 장착, 클릭으로 설명
                 if (equipment) {
                     itemElement.addEventListener('click', () => {
+                        this.showItemDescription(itemId, itemName);
+                    });
+                    itemElement.addEventListener('dblclick', () => {
                         this.equipItem(equipment);
                     });
                     itemElement.style.cursor = 'pointer';
                     itemElement.style.background = 'linear-gradient(135deg, #e8f5e8, #c8e6c9)';
+                    itemElement.title = this.getEquipmentDescription(equipment);
+                    itemElement.innerHTML = `
+                        <div class="item-name">${itemName} [장착]</div>
+                        <div class="item-count">x${count}</div>
+                    `;
                 }
+                // 특수 아이템이면 더블클릭으로 사용, 클릭으로 설명
+                else if (specialItem) {
+                    itemElement.addEventListener('click', () => {
+                        this.showItemDescription(itemId, itemName);
+                    });
+                    itemElement.addEventListener('dblclick', () => {
+                        this.useSpecialItem(itemId, specialItem);
+                    });
+                    itemElement.style.cursor = 'pointer';
+                    itemElement.style.background = 'linear-gradient(135deg, #fff3cd, #ffeaa7)';
+                    itemElement.title = specialItem.description;
+                    itemElement.innerHTML = `
+                        <div class="item-name">${itemName} [사용]</div>
+                        <div class="item-count">x${count}</div>
+                    `;
+                }
+                // 재료나 방지권은 클릭으로 설명 표시
+                else if (material || protection) {
+                    const item = material || protection;
+                    itemElement.addEventListener('click', () => {
+                        this.showItemDescription(itemId, itemName);
+                    });
+                    itemElement.style.cursor = 'pointer';
+                    itemElement.title = item.description;
+                    itemElement.innerHTML = `
+                        <div class="item-name">${itemName}</div>
+                        <div class="item-count">x${count}</div>
+                    `;
+                }
+
+                // 모바일에서는 싱글탭으로 설명, 더블탭으로 액션
+                let lastTap = 0;
+                let tapCount = 0;
+                itemElement.addEventListener('touchend', (e) => {
+                    tapCount++;
+                    const currentTime = new Date().getTime();
+
+                    if (tapCount === 1) {
+                        // 싱글 탭: 설명 표시
+                        setTimeout(() => {
+                            if (tapCount === 1) {
+                                this.showItemDescription(itemId, itemName);
+                            }
+                            tapCount = 0;
+                        }, 300);
+                    } else if (tapCount === 2) {
+                        // 더블 탭: 액션 실행
+                        e.preventDefault();
+                        if (equipment) {
+                            this.equipItem(equipment);
+                        } else if (specialItem) {
+                            this.useSpecialItem(itemId, specialItem);
+                        } else {
+                            // 재료/방지권은 설명만
+                            this.showItemDescription(itemId, itemName);
+                        }
+                        tapCount = 0;
+                    }
+                });
                 
                 inventoryItems.appendChild(itemElement);
             }
         });
     }
 
+    // 특수 아이템 사용
+    useSpecialItem(itemId, specialItem) {
+        // 이미 사용 중인지 확인
+        if (this.gameData.equipment[itemId]) {
+            this.showNotification(`${specialItem.name}은(는) 이미 사용 중입니다.`, 'warning');
+            return;
+        }
+
+        // 아이템 사용 확인
+        if (!confirm(`${specialItem.name}을(를) 사용하시겠습니까?\n효과: ${specialItem.description}`)) {
+            return;
+        }
+
+        // 효과 적용
+        this.gameData.equipment[itemId] = specialItem;
+
+        // 인벤토리에서 제거
+        this.gameData.inventory[itemId]--;
+        if (this.gameData.inventory[itemId] <= 0) {
+            delete this.gameData.inventory[itemId];
+        }
+
+        // UI 업데이트
+        this.updateInventoryDisplay();
+        this.updateDisplay();
+        this.saveGameData();
+
+        this.showNotification(`${specialItem.name}을(를) 사용했습니다!`, 'success');
+    }
+
+    // 장비 아이템 설명 생성
+    getEquipmentDescription(equipment) {
+        let description = '';
+
+        switch (equipment.effect) {
+            case 'clickGoldMultiplier':
+                description = `클릭 골드 +${equipment.value}%`;
+                break;
+            case 'autoClickSpeed':
+                description = `자동 클릭 속도 +${equipment.value}%`;
+                break;
+            case 'criticalChance':
+                description = `크리티컬 확률 +${equipment.value}%`;
+                break;
+            case 'successRate':
+                description = `강화 성공률 +${equipment.value}%`;
+                break;
+            case 'clickDamage':
+                description = `클릭 데미지 +${equipment.value}`;
+                break;
+            case 'criticalDamage':
+                description = `크리티컬 데미지 +${equipment.value}%`;
+                break;
+            case 'allStats':
+                description = `모든 능력치 +${equipment.value}%`;
+                break;
+            case 'autoGold':
+                description = `자동 골드 +${equipment.value}원/초`;
+                break;
+            case 'specialEffectChance':
+                description = `특수 효과 확률 +${equipment.value}%`;
+                break;
+            case 'goldMultiplier':
+                description = `골드 획득 배율 +${equipment.value}%`;
+                break;
+            case 'materialDropRate':
+                description = `재료 드롭률 +${equipment.value}%`;
+                break;
+            case 'sellMultiplier':
+                description = `판매가 배율 +${equipment.value}%`;
+                break;
+            default:
+                description = `${equipment.effect}: +${equipment.value}`;
+        }
+
+        return description;
+    }
+
+    // 아이템 설명 표시 (모달로)
+    showItemDescription(itemId, itemName) {
+        let description = '';
+        let rarity = '';
+        let itemType = '';
+
+        // 장비 아이템
+        const equipment = EQUIPMENT.find(item => item.id === itemId);
+        if (equipment) {
+            description = this.getEquipmentDescription(equipment);
+            rarity = equipment.rarity;
+            itemType = '장비 아이템';
+        }
+        // 특수 아이템
+        else if (ITEMS.special[itemId]) {
+            description = ITEMS.special[itemId].description;
+            rarity = ITEMS.special[itemId].rarity;
+            itemType = '특별 아이템';
+        }
+        // 재료 아이템
+        else if (ITEMS.materials[itemId]) {
+            description = ITEMS.materials[itemId].description;
+            rarity = ITEMS.materials[itemId].rarity;
+            itemType = '재료 아이템';
+        }
+        // 방지권 아이템
+        else if (ITEMS.protections[itemId]) {
+            description = ITEMS.protections[itemId].description;
+            rarity = ITEMS.protections[itemId].rarity;
+            itemType = '방지권 아이템';
+        }
+
+        if (description) {
+            // 모달로 표시
+            this.showItemDescriptionModal(itemName, description, itemType, rarity, itemId);
+        }
+    }
+
+    // 아이템 설명 모달 표시
+    showItemDescriptionModal(itemName, description, itemType, rarity, itemId) {
+        // 인벤토리 모달 숨기기
+        this.hideModal('inventory-modal');
+
+        // 제목 설정
+        document.getElementById('item-description-title').textContent = itemName;
+
+        // 아이템 타입에 따른 버튼 생성
+        let actionButton = '';
+        if (itemType === '장비 아이템') {
+            // 장비 아이템인 경우 장착 버튼
+            const equipment = EQUIPMENT.find(e => e.id === itemId);
+            if (equipment) {
+                const isEquipped = this.gameData.equipment[equipment.slot]?.id === itemId;
+                actionButton = `<button class="action-btn ${isEquipped ? 'equipped' : ''}" id="equip-btn">
+                    ${isEquipped ? '장착중' : '장착하기'}
+                </button>`;
+            }
+        } else if (itemType === '특별 아이템' || itemType === '방지권 아이템') {
+            // 특별 아이템이나 방지권인 경우 사용 버튼
+            actionButton = `<button class="action-btn" id="use-btn">사용하기</button>`;
+        }
+
+        // 내용 설정
+        const content = document.getElementById('item-description-content');
+        content.innerHTML = `
+            <div class="item-description-section">
+                <div class="item-type">타입: ${itemType}</div>
+                ${rarity ? `<div class="item-rarity rarity-${rarity.toLowerCase()}">등급: ${rarity}</div>` : ''}
+                <div class="item-description">${description}</div>
+                ${actionButton ? `<div class="item-actions">${actionButton}</div>` : ''}
+            </div>
+        `;
+
+        // 이벤트 리스너 설정
+        const closeBtn = document.querySelector('#item-description-modal .close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.hideModal('item-description-modal');
+            });
+        }
+
+        if (actionButton) {
+            if (itemType === '장비 아이템') {
+                const equipBtn = document.getElementById('equip-btn');
+                if (equipBtn && !equipBtn.classList.contains('equipped')) {
+                    equipBtn.addEventListener('click', () => {
+                        const equipment = EQUIPMENT.find(e => e.id === itemId);
+                        if (equipment) {
+                            this.equipItem(equipment);
+                            this.hideModal('item-description-modal');
+                        }
+                    });
+                }
+            } else if (itemType === '특별 아이템' || itemType === '방지권 아이템') {
+                const useBtn = document.getElementById('use-btn');
+                if (useBtn) {
+                    useBtn.addEventListener('click', () => {
+                        this.useItem(itemId);
+                        this.hideModal('item-description-modal');
+                    });
+                }
+            }
+        }
+
+        // 모달 표시
+        this.showModal('item-description-modal');
+    }
+
     // 아이템 장착
     equipItem(equipment) {
         const slotId = equipment.slot;
-        
-        // 이미 장착된 아이템이 있으면 확인
         if (this.gameData.equipment[slotId]) {
             const oldEquipment = this.gameData.equipment[slotId];
             if (!confirm(`${oldEquipment.name}을(를) 해제하고 ${equipment.name}을(를) 장착하시겠습니까?`)) {
@@ -1066,6 +1345,93 @@ class SwordUpgradeGame {
         this.updateInventoryDisplay();
         this.updateDisplay();
         this.showNotification(`${equipment.name}을(를) 장착했습니다!`, 'success');
+    }
+
+    // 아이템 사용
+    useItem(itemId) {
+        // 아이템 확인
+        let item = null;
+        let itemType = '';
+
+        // 특수 아이템 확인
+        if (ITEMS.special[itemId]) {
+            item = ITEMS.special[itemId];
+            itemType = 'special';
+        }
+        // 소모품 확인
+        else if (ITEMS.consumables && ITEMS.consumables[itemId]) {
+            item = ITEMS.consumables[itemId];
+            itemType = 'consumable';
+        }
+        // 방지권 확인
+        else if (ITEMS.protections && ITEMS.protections[itemId]) {
+            item = ITEMS.protections[itemId];
+            itemType = 'protection';
+        }
+
+        if (!item) {
+            this.showNotification('사용할 수 없는 아이템입니다.', 'error');
+            return;
+        }
+
+        // 아이템이 있는지 확인
+        if (!this.gameData.inventory[itemId] || this.gameData.inventory[itemId] <= 0) {
+            this.showNotification('아이템이 부족합니다.', 'error');
+            return;
+        }
+
+        // 효과 적용
+        if (item.effect) {
+            switch (item.effect.type) {
+                case 'successRate':
+                    this.gameData.stats.permanentSuccessRateBonus = (this.gameData.stats.permanentSuccessRateBonus || 0) + item.effect.value;
+                    this.showNotification(`강화 성공률이 ${item.effect.value}% 증가했습니다!`, 'success');
+                    break;
+                case 'autoClick':
+                    this.gameData.stats.autoClickCount = (this.gameData.stats.autoClickCount || 0) + item.effect.value;
+                    this.showNotification(`자동 클릭이 ${item.effect.value}회 추가되었습니다!`, 'success');
+                    break;
+                case 'materialDropRate':
+                    this.gameData.stats.materialDropRateBonus = (this.gameData.stats.materialDropRateBonus || 0) + item.effect.value;
+                    this.showNotification(`재료 드롭률이 ${item.effect.value}% 증가했습니다!`, 'success');
+                    break;
+                case 'sellMultiplier':
+                    this.gameData.stats.sellMultiplierBonus = (this.gameData.stats.sellMultiplierBonus || 0) + item.effect.value;
+                    this.showNotification(`판매 가격이 ${item.effect.value}% 증가했습니다!`, 'success');
+                    break;
+                case 'protection':
+                    // 현재 레벨에 맞는 방지권 추가
+                    const level = this.gameData.swordLevel;
+                    let protectionType = '';
+                    
+                    if (level <= 10) protectionType = 'broken_protection';
+                    else if (level <= 15) protectionType = 'old_protection';
+                    else if (level <= 20) protectionType = 'normal_protection';
+                    else if (level <= 25) protectionType = 'high_protection';
+                    else protectionType = 'ultimate_protection';
+                    
+                    if (!this.gameData.protectionItems[protectionType]) {
+                        this.gameData.protectionItems[protectionType] = 0;
+                    }
+                    this.gameData.protectionItems[protectionType] += item.effect.value;
+                    this.showNotification(`방지권 ${item.effect.value}장을 획득했습니다!`, 'success');
+                    break;
+                default:
+                    this.showNotification(`${item.name}을(를) 사용했습니다!`, 'success');
+            }
+        } else {
+            this.showNotification(`${item.name}을(를) 사용했습니다!`, 'success');
+        }
+
+        // 인벤토리에서 제거
+        this.gameData.inventory[itemId]--;
+        if (this.gameData.inventory[itemId] <= 0) {
+            delete this.gameData.inventory[itemId];
+        }
+
+        this.saveGameData();
+        this.updateInventoryDisplay();
+        this.updateDisplay();
     }
 
     // 랜덤 장비 지급
@@ -1407,10 +1773,20 @@ class SwordUpgradeGame {
         
         // 자동 클릭
         setInterval(() => {
+            // 장비 효과
+            let autoClickCount = 0;
             if (this.gameData.equipment.autoClicker) {
-                for (let i = 0; i < this.gameData.equipment.autoClicker.value; i++) {
-                    this.clickSword();
-                }
+                autoClickCount += this.gameData.equipment.autoClicker.value;
+            }
+            
+            // 특수 아이템 효과
+            if (this.gameData.stats.autoClickCount) {
+                autoClickCount += this.gameData.stats.autoClickCount;
+            }
+            
+            // 자동 클릭 실행
+            for (let i = 0; i < autoClickCount; i++) {
+                this.clickSword();
             }
         }, autoClickInterval);
 
@@ -1456,7 +1832,7 @@ class SwordUpgradeGame {
     }
 
     // 알림 표시
-    showNotification(message, type = 'success') {
+    showNotification(message, type = 'success', duration = 3000) {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.textContent = message;
@@ -1465,13 +1841,18 @@ class SwordUpgradeGame {
 
         setTimeout(() => {
             notification.remove();
-        }, 3000);
+        }, duration);
     }
 
     // 모달 표시
     showModal(modalId) {
         document.getElementById('modal-overlay').classList.remove('hidden');
         document.getElementById(modalId).classList.remove('hidden');
+        
+        // 모바일에서 모달이 열리면 스크롤 허용
+        if (window.innerWidth <= 768) {
+            document.body.style.overflow = 'auto';
+        }
     }
 
     // 모달 숨기기
@@ -1481,8 +1862,17 @@ class SwordUpgradeGame {
         // 업적 상세 모달을 닫을 때는 업적 모달로 돌아가기
         if (modalId === 'achievement-detail-modal') {
             this.showModal('achievements-modal');
+        }
+        // 아이템 상세 모달을 닫을 때는 인벤토리 모달로 돌아가기
+        else if (modalId === 'item-description-modal') {
+            this.showModal('inventory-modal');
         } else {
             document.getElementById('modal-overlay').classList.add('hidden');
+            
+            // 모바일에서 모든 모달이 닫히면 다시 스크롤 막기
+            if (window.innerWidth <= 768) {
+                document.body.style.overflow = 'hidden';
+            }
         }
     }
 
@@ -2227,8 +2617,20 @@ class SwordUpgradeGame {
                     <div class="admin-field">
                         <label class="admin-field-label">효과 타입</label>
                         <select>
-                            <option value="successRate" ${data.effect?.type === 'successRate' ? 'selected' : ''}>성공률</option>
+                            <option value="successRate" ${data.effect?.type === 'successRate' ? 'selected' : ''}>강화 성공률</option>
                             <option value="clickGoldMultiplier" ${data.effect?.type === 'clickGoldMultiplier' ? 'selected' : ''}>클릭 골드 배율</option>
+                            <option value="autoClick" ${data.effect?.type === 'autoClick' ? 'selected' : ''}>자동 클릭</option>
+                            <option value="autoClickSpeed" ${data.effect?.type === 'autoClickSpeed' ? 'selected' : ''}>자동 클릭 속도</option>
+                            <option value="criticalChance" ${data.effect?.type === 'criticalChance' ? 'selected' : ''}>크리티컬 확률</option>
+                            <option value="materialDropRate" ${data.effect?.type === 'materialDropRate' ? 'selected' : ''}>재료 드롭률</option>
+                            <option value="sellMultiplier" ${data.effect?.type === 'sellMultiplier' ? 'selected' : ''}>판매가 배율</option>
+                            <option value="goldMultiplier" ${data.effect?.type === 'goldMultiplier' ? 'selected' : ''}>골드 획득 배율</option>
+                            <option value="clickDamage" ${data.effect?.type === 'clickDamage' ? 'selected' : ''}>클릭 데미지</option>
+                            <option value="criticalDamage" ${data.effect?.type === 'criticalDamage' ? 'selected' : ''}>크리티컬 데미지</option>
+                            <option value="allStats" ${data.effect?.type === 'allStats' ? 'selected' : ''}>모든 능력치</option>
+                            <option value="autoGold" ${data.effect?.type === 'autoGold' ? 'selected' : ''}>자동 골드</option>
+                            <option value="specialEffectChance" ${data.effect?.type === 'specialEffectChance' ? 'selected' : ''}>특수 효과 확률</option>
+                            <option value="randomEquipment" ${data.effect?.type === 'randomEquipment' ? 'selected' : ''}>랜덤 장비</option>
                         </select>
                     </div>
                     <div class="admin-field">
@@ -2239,9 +2641,11 @@ class SwordUpgradeGame {
                         <label class="admin-field-label">희귀도</label>
                         <select>
                             <option value="common" ${data.rarity === 'common' ? 'selected' : ''}>일반</option>
+                            <option value="uncommon" ${data.rarity === 'uncommon' ? 'selected' : ''}>고급</option>
                             <option value="rare" ${data.rarity === 'rare' ? 'selected' : ''}>희귀</option>
                             <option value="epic" ${data.rarity === 'epic' ? 'selected' : ''}>영웅</option>
                             <option value="legendary" ${data.rarity === 'legendary' ? 'selected' : ''}>전설</option>
+                            <option value="mythical" ${data.rarity === 'mythical' ? 'selected' : ''}>신화</option>
                         </select>
                     </div>
                     ` : ''}
@@ -2393,11 +2797,26 @@ class SwordUpgradeGame {
                             <input type="text" value="${data.name || ''}">
                         </div>
                         <div class="admin-field">
-                            <label class="admin-field-label">효과</label>
-                            <input type="text" value="${data.effect || ''}">
+                            <label class="admin-field-label">효과 타입</label>
+                            <select>
+                                <option value="successRate" ${data.effect === 'successRate' ? 'selected' : ''}>강화 성공률</option>
+                                <option value="clickGoldMultiplier" ${data.effect === 'clickGoldMultiplier' ? 'selected' : ''}>클릭 골드 배율</option>
+                                <option value="autoClick" ${data.effect === 'autoClick' ? 'selected' : ''}>자동 클릭</option>
+                                <option value="autoClickSpeed" ${data.effect === 'autoClickSpeed' ? 'selected' : ''}>자동 클릭 속도</option>
+                                <option value="criticalChance" ${data.effect === 'criticalChance' ? 'selected' : ''}>크리티컬 확률</option>
+                                <option value="materialDropRate" ${data.effect === 'materialDropRate' ? 'selected' : ''}>재료 드롭률</option>
+                                <option value="sellMultiplier" ${data.effect === 'sellMultiplier' ? 'selected' : ''}>판매가 배율</option>
+                                <option value="goldMultiplier" ${data.effect === 'goldMultiplier' ? 'selected' : ''}>골드 획득 배율</option>
+                                <option value="clickDamage" ${data.effect === 'clickDamage' ? 'selected' : ''}>클릭 데미지</option>
+                                <option value="criticalDamage" ${data.effect === 'criticalDamage' ? 'selected' : ''}>크리티컬 데미지</option>
+                                <option value="allStats" ${data.effect === 'allStats' ? 'selected' : ''}>모든 능력치</option>
+                                <option value="autoGold" ${data.effect === 'autoGold' ? 'selected' : ''}>자동 골드</option>
+                                <option value="specialEffectChance" ${data.effect === 'specialEffectChance' ? 'selected' : ''}>특수 효과 확률</option>
+                                <option value="randomEquipment" ${data.effect === 'randomEquipment' ? 'selected' : ''}>랜덤 장비</option>
+                            </select>
                         </div>
                         <div class="admin-field">
-                            <label class="admin-field-label">값</label>
+                            <label class="admin-field-label">효과 값</label>
                             <input type="number" value="${data.value || 0}">
                         </div>
                         <div class="admin-field">
@@ -2773,22 +3192,96 @@ class SwordUpgradeGame {
     }
 
     adminAddShopItem() {
-        const id = prompt('상점 아이템 ID를 입력하세요:');
-        if (!id) return;
+        // 카테고리 선택
+        const category = prompt('어떤 카테고리에 추가하시겠습니까?\n1: 워프권\n2: 방지권\n3: 특별 아이템\n\n숫자를 입력하세요:');
+        if (!category || !['1', '2', '3'].includes(category)) return;
 
-        const item = {
-            id: id,
-            name: '새 상점 아이템',
-            price: 1000,
-            effect: 'clickMultiplier',
-            description: '설명을 입력하세요'
+        const categoryMap = {
+            '1': 'warpItems',
+            '2': 'protectionItems',
+            '3': 'specialItems'
         };
 
-        if (!SHOP_ITEMS.warpItems) SHOP_ITEMS.warpItems = [];
-        SHOP_ITEMS.warpItems.push(item);
+        const selectedCategory = categoryMap[category];
+        const categoryNames = {
+            'warpItems': '워프권',
+            'protectionItems': '방지권',
+            'specialItems': '특별 아이템'
+        };
+
+        // ID 입력
+        const id = prompt(`${categoryNames[selectedCategory]} ID를 입력하세요:`);
+        if (!id) return;
+
+        let item;
+
+        // 카테고리에 따라 기본 템플릿 생성
+        switch (selectedCategory) {
+            case 'warpItems':
+                const multiplier = prompt('배율을 입력하세요 (예: 9):') || '9';
+                item = {
+                    id: id,
+                    name: `워프권 x${Math.floor(parseInt(multiplier) / 9) || 1}`,
+                    effect: 'clickMultiplier',
+                    value: parseInt(multiplier) || 9,
+                    price: 1000000,
+                    unlimited: true
+                };
+                break;
+
+            case 'protectionItems':
+                const maxLevel = prompt('최대 보호 레벨을 입력하세요 (10/15/20/25/30):') || '10';
+                const protectionNames = {
+                    '10': '깨진 방지권',
+                    '15': '낡은 방지권',
+                    '20': '보통 방지권',
+                    '25': '고급 방지권',
+                    '30': '최상급 방지권'
+                };
+                item = {
+                    id: id,
+                    name: protectionNames[maxLevel] || '새 방지권',
+                    maxLevel: parseInt(maxLevel) || 10,
+                    price: 1000000,
+                    unlimited: true
+                };
+                break;
+
+            case 'specialItems':
+                const effectType = prompt('효과 타입을 선택하세요:\n1: 강화 성공률\n2: 클릭 골드 배율\n3: 자동 클릭\n4: 자동 클릭 속도\n5: 크리티컬 확률\n6: 재료 드롭률\n7: 판매가 배율\n\n숫자를 입력하세요:') || '1';
+                const effectMap = {
+                    '1': { type: 'successRate', name: '황금 망치' },
+                    '2': { type: 'clickGoldMultiplier', name: '황금 반지' },
+                    '3': { type: 'autoClick', name: '자동 클릭기' },
+                    '4': { type: 'autoClickSpeed', name: '시간 가속기' },
+                    '5': { type: 'criticalChance', name: '행운의 부적' },
+                    '6': { type: 'materialDropRate', name: '재료 탐지기' },
+                    '7': { type: 'sellMultiplier', name: '대량 판매권' }
+                };
+
+                const selectedEffect = effectMap[effectType] || effectMap['1'];
+                const effectValue = prompt('효과 값을 입력하세요 (예: 5):') || '5';
+
+                item = {
+                    id: id,
+                    name: selectedEffect.name,
+                    effect: selectedEffect.type,
+                    value: parseInt(effectValue) || 5,
+                    permanent: true,
+                    price: 10000000,
+                    purchaseLimit: 1
+                };
+                break;
+        }
+
+        // 선택한 카테고리에 아이템 추가
+        if (!SHOP_ITEMS[selectedCategory]) {
+            SHOP_ITEMS[selectedCategory] = [];
+        }
+        SHOP_ITEMS[selectedCategory].push(item);
 
         this.renderAdminShop();
-        this.showNotification('상점 아이템이 추가되었습니다.', 'success');
+        this.showNotification(`${categoryNames[selectedCategory]}이(가) 추가되었습니다.`, 'success');
     }
 
     adminAddAchievement() {
