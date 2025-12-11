@@ -3,7 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="description" content="검을 강화하고 골드를 모으는 방치형 클리커 RPG 게임">
+    <meta name="theme-color" content="#667eea">
     <title>검 강화하기 - Idle Clicker RPG</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="검 강화하기">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-72x72.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/icon-72x72.png">
+    
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -157,6 +173,16 @@
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-content">
+                    <div class="settings-section">
+                        <h3>사운드 설정</h3>
+                        <div class="settings-control">
+                            <label for="sound-toggle">
+                                <span id="sound-status">🔊 사운드: ON</span>
+                            </label>
+                            <button id="sound-toggle-btn" class="settings-btn">끄기</button>
+                        </div>
+                        <p class="settings-desc">효과음과 배경음악을 켜거나 끕니다.</p>
+                    </div>
                     <div class="settings-section">
                         <h3>게임 데이터</h3>
                         <button id="reset-data-btn" class="settings-btn danger">데이터 초기화</button>
@@ -373,5 +399,72 @@
     <script src="data/achievements.js"></script>
     <script src="data/titles.js"></script>
     <script src="script.js"></script>
+    
+    <!-- PWA Service Worker 등록 -->
+    <script>
+        // Service Worker는 http/https 프로토콜에서만 작동합니다
+        if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then((registration) => {
+                        console.log('✅ Service Worker 등록 성공:', registration.scope);
+                        
+                        // 업데이트 확인
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('🔄 새로운 버전이 있습니다. 새로고침하세요!');
+                                    // 선택사항: 사용자에게 업데이트 알림 표시
+                                    if (confirm('새로운 버전이 있습니다. 업데이트하시겠습니까?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.warn('⚠️ Service Worker 등록 실패 (로컬 개발 환경에서는 정상):', error.message);
+                    });
+            });
+        } else if (location.protocol === 'file:') {
+            console.log('ℹ️ 로컬 파일로 실행 중입니다. PWA 기능은 웹 서버에서만 작동합니다.');
+        }
+
+        // PWA 설치 프롬프트 (http/https에서만 작동)
+        let deferredPrompt;
+        if (location.protocol !== 'file:') {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                
+                // 설치 버튼 표시 (선택사항)
+                console.log('📱 PWA 설치 가능');
+                
+                // 사용자에게 설치 안내 (첫 방문 시에만)
+                const hasPrompted = localStorage.getItem('pwa-install-prompted');
+                if (!hasPrompted) {
+                    setTimeout(() => {
+                        if (confirm('이 게임을 홈 화면에 추가하시겠습니까?\n오프라인에서도 플레이할 수 있습니다!')) {
+                            deferredPrompt.prompt();
+                            deferredPrompt.userChoice.then((choiceResult) => {
+                                if (choiceResult.outcome === 'accepted') {
+                                    console.log('✅ PWA 설치 승인');
+                                }
+                                deferredPrompt = null;
+                            });
+                        }
+                        localStorage.setItem('pwa-install-prompted', 'true');
+                    }, 3000); // 3초 후 표시
+                }
+            });
+        }
+
+        // PWA 설치 완료 이벤트
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA 설치 완료!');
+            deferredPrompt = null;
+        });
+    </script>
 </body>
 </html>

@@ -103,6 +103,12 @@ body {
     transition: transform 0.1s ease;
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
     object-fit: contain;
+    outline: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #sword-image:hover {
@@ -182,27 +188,33 @@ body {
 #progress-container {
     width: 100%;
     max-width: 300px;
+    margin: 0 auto;
 }
 
 #progress-bar {
     width: 100%;
-    height: 20px;
+    height: 25px;
     background: #ecf0f1;
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 10px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
 }
 
 #progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #e74c3c, #c0392b);
+    background: linear-gradient(90deg, #3498db, #2980b9);
     width: 0%;
-    transition: width 0.3s ease;
+    transition: none;
+    border-radius: 10px;
 }
 
 #progress-text {
+    text-align: center;
     font-size: 14px;
     color: #7f8c8d;
+    font-weight: 500;
+    margin-top: 5px;
 }
 
 /* 하단 메뉴 */
@@ -1681,4 +1693,25 @@ body {
 
 .item-rarity.rarity-mythic {
     color: #e74c3c; /* 빨간색 */
+}
+
+/* 설정 컨트롤 */
+.settings-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.settings-control label {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+.settings-control #sound-status {
+    font-size: 16px;
 }

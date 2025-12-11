@@ -3,12 +3,178 @@
 class SwordUpgradeGame {
     constructor() {
         this.gameData = this.loadGameData();
+        this.initializeSoundSystem();
         this.initializeUI();
         this.setupEventListeners();
         this.updateDisplay();
         this.startAutoSystems();
         this.checkCheatMode(); // [CHEAT MODE] 치트 모드 체크 - 삭제 시 이 줄 삭제
         this.hideLoadingScreen();
+        this.setupSoundUnlock();
+    }
+
+    // 사운드 시스템 초기화
+    initializeSoundSystem() {
+        this.soundManager = {
+            sounds: {},
+            bgm: null,
+            enabled: this.gameData.settings.soundEnabled !== false,
+            volume: 0.5,
+            bgmVolume: 0.3,
+            initialized: false,
+            currentPlaying: null // 현재 재생 중인 사운드 추적
+        };
+
+        // 사운드 파일 정의
+        const soundFiles = {
+            click: 'assets/sounds/sfx/click.mp3',
+            upgradeStart: 'assets/sounds/sfx/upgrade-start.mp3',
+            upgradeSuccess: 'assets/sounds/sfx/upgrade-success.mp3',
+            upgradeFail: 'assets/sounds/sfx/upgrade-fail.mp3',
+            critical: 'assets/sounds/sfx/critical.mp3',
+            levelUp: 'assets/sounds/sfx/level-up.mp3',
+            coin: 'assets/sounds/sfx/coin.mp3',
+            purchase: 'assets/sounds/sfx/purchase.mp3',
+            equip: 'assets/sounds/sfx/equip.mp3',
+            achievement: 'assets/sounds/sfx/achievement.mp3',
+            buttonClick: 'assets/sounds/sfx/button-click.mp3',
+            notification: 'assets/sounds/sfx/notification.mp3'
+        };
+
+        // Audio 객체 생성
+        try {
+            Object.entries(soundFiles).forEach(([name, path]) => {
+                const audio = new Audio(path);
+                audio.volume = this.soundManager.volume;
+                audio.preload = 'auto';
+                audio.loop = false; // 반복 재생 방지
+                
+                // 재생 종료 이벤트
+                audio.addEventListener('ended', () => {
+                    if (this.soundManager.currentPlaying === name) {
+                        this.soundManager.currentPlaying = null;
+                    }
+                });
+                
+                this.soundManager.sounds[name] = audio;
+            });
+
+            this.soundManager.bgm = new Audio('assets/sounds/bgm/main-theme.mp3');
+            this.soundManager.bgm.loop = true;
+            this.soundManager.bgm.volume = this.soundManager.bgmVolume;
+            
+            console.log('✅ 사운드 시스템 초기화 완료');
+        } catch (error) {
+            console.warn('⚠️ 사운드 초기화 실패:', error);
+        }
+    }
+
+    // 사운드 자동재생 잠금 해제
+    setupSoundUnlock() {
+        const unlockSound = () => {
+            if (!this.soundManager.initialized) {
+                this.soundManager.initialized = true;
+                console.log('🎵 사운드 시스템 활성화');
+            }
+            
+            // BGM 시작 (사운드가 켜져있고, 아직 재생 중이 아닌 경우)
+            if (this.soundManager.enabled && 
+                this.soundManager.bgm && 
+                this.soundManager.bgm.paused) {
+                this.soundManager.bgm.play().catch((e) => {
+                    console.log('BGM 자동재생 차단됨 (정상)');
+                });
+            }
+        };
+
+        // 여러 종류의 사용자 상호작용 감지
+        document.addEventListener('click', unlockSound);
+        document.addEventListener('touchstart', unlockSound);
+        document.addEventListener('keydown', unlockSound);
+    }
+
+    // 효과음 재생
+    playSound(soundName) {
+        if (!this.soundManager.enabled || !this.soundManager.sounds[soundName]) return;
+        
+        try {
+            const sound = this.soundManager.sounds[soundName];
+            
+            // 모든 효과음 중지 (BGM 제외)
+            Object.entries(this.soundManager.sounds).forEach(([name, audio]) => {
+                if (audio && !audio.paused) {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
+            });
+            
+            // 새 사운드 재생
+            sound.currentTime = 0;
+            sound.volume = this.soundManager.volume;
+            sound.loop = false;
+            this.soundManager.currentPlaying = soundName;
+            
+            sound.play().catch(() => {
+                this.soundManager.currentPlaying = null;
+            });
+        } catch (error) {
+            this.soundManager.currentPlaying = null;
+        }
+    }
+
+    // 모든 효과음 중지
+    stopAllSounds() {
+        Object.values(this.soundManager.sounds).forEach(sound => {
+            if (sound && !sound.paused) {
+                sound.pause();
+                sound.currentTime = 0;
+            }
+        });
+        this.soundManager.currentPlaying = null;
+    }
+
+    // BGM 재생
+    playBGM() {
+        if (!this.soundManager.enabled || !this.soundManager.bgm) return;
+        
+        // 이미 재생 중이면 중복 재생 방지
+        if (!this.soundManager.bgm.paused) return;
+        
+        this.soundManager.bgm.volume = this.soundManager.bgmVolume;
+        this.soundManager.bgm.play().catch((e) => {
+            console.log('BGM 재생 실패:', e.message);
+        });
+    }
+
+    // BGM 중지
+    stopBGM() {
+        if (this.soundManager.bgm && !this.soundManager.bgm.paused) {
+            this.soundManager.bgm.pause();
+        }
+    }
+
+    // 사운드 토글
+    toggleSound() {
+        this.soundManager.enabled = !this.soundManager.enabled;
+        this.gameData.settings.soundEnabled = this.soundManager.enabled;
+        
+        if (this.soundManager.enabled) {
+            // 사운드 켤 때 BGM 시작
+            this.soundManager.initialized = true; // 강제 활성화
+            if (this.soundManager.bgm) {
+                this.soundManager.bgm.volume = this.soundManager.bgmVolume;
+                this.soundManager.bgm.play().catch((e) => {
+                    console.warn('BGM 재생 실패:', e.message);
+                });
+            }
+        } else {
+            // 사운드 끌 때 BGM과 모든 효과음 중지
+            this.stopBGM();
+            this.stopAllSounds();
+        }
+        
+        this.saveGameData();
+        return this.soundManager.enabled;
     }
 
     // 게임 데이터 로드
@@ -153,6 +319,7 @@ class SwordUpgradeGame {
         const shopBtn = document.getElementById('shop-btn');
         if (shopBtn) {
             shopBtn.addEventListener('click', () => {
+                this.playSound('buttonClick');
                 this.showModal('shop-modal');
             });
         }
@@ -160,6 +327,7 @@ class SwordUpgradeGame {
         const inventoryBtn = document.getElementById('inventory-btn');
         if (inventoryBtn) {
             inventoryBtn.addEventListener('click', () => {
+                this.playSound('buttonClick');
                 this.showModal('inventory-modal');
             });
         }
@@ -167,6 +335,7 @@ class SwordUpgradeGame {
         const forgeBtn = document.getElementById('forge-btn');
         if (forgeBtn) {
             forgeBtn.addEventListener('click', () => {
+                this.playSound('buttonClick');
                 this.showModal('forge-modal');
                 this.updateForgeDisplay();
             });
@@ -175,6 +344,7 @@ class SwordUpgradeGame {
         const achievementsBtn = document.getElementById('achievements-btn');
         if (achievementsBtn) {
             achievementsBtn.addEventListener('click', () => {
+                this.playSound('buttonClick');
                 this.showModal('achievements-modal');
             });
         }
@@ -182,6 +352,7 @@ class SwordUpgradeGame {
         const titleBtn = document.getElementById('title-btn');
         if (titleBtn) {
             titleBtn.addEventListener('click', () => {
+                this.playSound('buttonClick');
                 this.showModal('title-modal');
                 this.updateTitlesListDisplay();
             });
@@ -190,6 +361,7 @@ class SwordUpgradeGame {
         const settingsBtn = document.getElementById('settings-btn');
         if (settingsBtn) {
             settingsBtn.addEventListener('click', () => {
+                this.playSound('buttonClick');
                 this.showModal('settings-modal');
             });
         }
@@ -202,6 +374,28 @@ class SwordUpgradeGame {
         });
 
         // 설정 버튼들
+        const soundToggleBtn = document.getElementById('sound-toggle-btn');
+        if (soundToggleBtn) {
+            soundToggleBtn.addEventListener('click', () => {
+                const enabled = this.toggleSound();
+                const statusText = document.getElementById('sound-status');
+                const btnText = soundToggleBtn;
+                if (statusText) {
+                    statusText.textContent = enabled ? '🔊 사운드: ON' : '🔇 사운드: OFF';
+                }
+                if (btnText) {
+                    btnText.textContent = enabled ? '끄기' : '켜기';
+                }
+            });
+            
+            // 초기 상태 설정
+            const statusText = document.getElementById('sound-status');
+            if (statusText) {
+                statusText.textContent = this.soundManager.enabled ? '🔊 사운드: ON' : '🔇 사운드: OFF';
+            }
+            soundToggleBtn.textContent = this.soundManager.enabled ? '끄기' : '켜기';
+        }
+
         const resetDataBtn = document.getElementById('reset-data-btn');
         if (resetDataBtn) {
             resetDataBtn.addEventListener('click', () => {
@@ -250,6 +444,7 @@ class SwordUpgradeGame {
         this.gameData.stats.totalClicks++;
         this.gameData.stats.totalGoldEarned += clickPower;
 
+        this.playSound('click');
         this.updateDisplay();
         this.createClickEffect(clickPower);
         this.checkAchievements();
@@ -300,20 +495,116 @@ class SwordUpgradeGame {
             return;
         }
 
-        this.gameData.gold -= cost;
-        this.gameData.stats.totalUpgrades++;
+        // 강화 진행 바 시작
+        this.startUpgradeProgress(() => {
+            this.gameData.gold -= cost;
+            this.gameData.stats.totalUpgrades++;
 
-        const successRate = this.calculateSuccessRate();
-        const isSuccess = Math.random() * 100 < successRate;
+            const successRate = this.calculateSuccessRate();
+            const isSuccess = Math.random() * 100 < successRate;
 
-        if (isSuccess) {
-            this.upgradeSuccess();
+            // 성공/실패 결과 저장
+            this.lastUpgradeResult = {
+                success: isSuccess,
+                previousLevel: this.gameData.swordLevel
+            };
+
+            if (isSuccess) {
+                this.upgradeSuccess();
+            } else {
+                this.upgradeFailure();
+            }
+
+            this.updateDisplay();
+            this.saveGameData();
+        });
+    }
+
+    // 강화 진행 바 시작
+    startUpgradeProgress(callback) {
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const upgradeBtn = document.getElementById('upgrade-btn');
+        const sellBtn = document.getElementById('sell-btn');
+        
+        if (!progressFill || !progressText) return;
+
+        // 버튼 비활성화
+        if (upgradeBtn) upgradeBtn.disabled = true;
+        if (sellBtn) sellBtn.disabled = true;
+
+        // 진행 바 초기화
+        progressFill.style.width = '0%';
+        progressFill.style.background = 'linear-gradient(90deg, #3498db, #2980b9)';
+        progressText.textContent = '강화 중...';
+        progressText.style.color = '#3498db';
+
+        // 강화 시작 사운드
+        this.playSound('upgradeStart');
+
+        // 애니메이션 시작
+        let progress = 0;
+        const duration = 1500; // 1.5초
+        const intervalTime = 20;
+        const increment = (100 / duration) * intervalTime;
+
+        const interval = setInterval(() => {
+            progress += increment;
+            
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+                
+                // 강화 실행
+                progressFill.style.width = '100%';
+                
+                // 짧은 딜레이 후 결과 표시
+                setTimeout(() => {
+                    callback();
+                    
+                    // 결과에 따라 색상 변경
+                    setTimeout(() => {
+                        this.showUpgradeResult();
+                    }, 100);
+                    
+                    // 버튼 다시 활성화
+                    if (upgradeBtn) upgradeBtn.disabled = false;
+                    if (sellBtn) sellBtn.disabled = false;
+                }, 200);
+            } else {
+                progressFill.style.width = progress + '%';
+            }
+        }, intervalTime);
+    }
+
+    // 강화 결과 표시
+    showUpgradeResult() {
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const currentWeapon = WEAPONS[this.gameData.swordLevel];
+        
+        if (!progressFill || !progressText || !currentWeapon) return;
+
+        // 마지막 강화 결과 확인
+        if (this.lastUpgradeResult && this.lastUpgradeResult.success) {
+            // 강화 성공
+            progressFill.style.background = 'linear-gradient(90deg, #27ae60, #229954)';
+            progressText.textContent = `강화 성공! ${currentWeapon.name} +${this.gameData.swordLevel}`;
+            progressText.style.color = '#27ae60';
         } else {
-            this.upgradeFailure();
+            // 강화 실패
+            progressFill.style.background = 'linear-gradient(90deg, #e74c3c, #c0392b)';
+            progressText.textContent = `강화 실패... ${currentWeapon.name} +${this.gameData.swordLevel}`;
+            progressText.style.color = '#e74c3c';
         }
 
-        this.updateDisplay();
-        this.saveGameData();
+        // 2초 후 초기화
+        setTimeout(() => {
+            progressFill.style.width = '0%';
+            progressFill.style.background = 'linear-gradient(90deg, #3498db, #2980b9)';
+            progressText.textContent = '준비 중...';
+            progressText.style.color = '#7f8c8d';
+        }, 2000);
     }
 
     // 성공률 계산
@@ -394,10 +685,12 @@ class SwordUpgradeGame {
         if (isCritical) {
             this.gameData.swordLevel += 2; // 크리티컬: +2
             this.gameData.stats.criticalUpgrades++;
+            this.playSound('critical');
             this.showNotification('크리티컬 강화 성공! +2 상승!', 'warning');
             this.createCriticalEffect();
         } else {
             this.gameData.swordLevel += 1;
+            this.playSound('upgradeSuccess');
             this.showNotification('강화 성공!', 'success');
         }
 
@@ -444,8 +737,10 @@ class SwordUpgradeGame {
         let penalty = 0;
 
         if (hasProtection) {
+            this.playSound('notification');
             this.showNotification('방지권으로 보호되었습니다!', 'success');
         } else {
+            this.playSound('upgradeFail');
             const level = this.gameData.swordLevel;
             if (level >= 20) penalty = 2;
             else if (level >= 10) penalty = 1;
@@ -815,6 +1110,7 @@ class SwordUpgradeGame {
         }
 
         this.gameData.gold -= item.price;
+        this.playSound('purchase');
 
         // 아이템 효과 적용
         switch (item.effect) {
@@ -1344,6 +1640,7 @@ class SwordUpgradeGame {
         this.saveGameData();
         this.updateInventoryDisplay();
         this.updateDisplay();
+        this.playSound('equip');
         this.showNotification(`${equipment.name}을(를) 장착했습니다!`, 'success');
     }
 
@@ -1689,6 +1986,7 @@ class SwordUpgradeGame {
 
                 if (completed) {
                     this.gameData.achievements[achievement.id] = true;
+                    this.playSound('achievement');
                     this.grantAchievementReward(achievement);
                     this.showNotification(`업적 달성: ${achievement.name}!`, 'success');
                 }
