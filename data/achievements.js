@@ -1,5 +1,5 @@
 // 업적 데이터
-const ACHIEVEMENTS = [
+var ACHIEVEMENTS = [
     {
         id: "first_upgrade",
         name: "첫 강화",
@@ -220,3 +220,5 @@ const ACHIEVEMENTS = [
         hidden: false
     }
 ];
+
+console.log('✅ ACHIEVEMENTS 데이터 로드됨');

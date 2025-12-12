@@ -850,74 +850,233 @@ body {
     font-weight: bold;
 }
 
-/* 창고 시스템 */
+/* 창고 그리드 */
+#inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.inventory-grid-item {
+    background: white;
+    border-radius: 10px;
+    padding: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid #ecf0f1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    aspect-ratio: 1;
+}
+
+.inventory-grid-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.inventory-item-image {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+
+.inventory-item-name {
+    font-size: 10px;
+    font-weight: 500;
+    color: #2c3e50;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.inventory-item-count {
+    font-size: 12px;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* 장비 슬롯 */
 #equipment-slots {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 10px;
     margin-bottom: 20px;
 }
 
-.equipment-slot {
+.equipment-slot-item {
+    background: white;
+    border-radius: 10px;
+    padding: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid #ecf0f1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    aspect-ratio: 1;
+}
+
+.equipment-slot-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.slot-image {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.slot-name {
+    font-size: 10px;
+    font-weight: 500;
+    text-align: center;
+    color: #2c3e50;
+}
+
+/* 보유 장비 */
+#owned-equipment {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* 장비 슬롯 */
+#equipment-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.equipment-slot-item {
     background: white;
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     border: 2px solid #ecf0f1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
     transition: all 0.3s ease;
+    aspect-ratio: 1;
 }
 
-.equipment-slot:hover {
+.equipment-slot-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    border-color: #3498db;
+}
+
+.slot-image {
+    font-size: 32px;
+    margin-bottom: 8px;
 }
 
 .slot-name {
-    font-size: 14px;
-    font-weight: bold;
-    color: #2c3e50;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-}
-
-.slot-item {
-    font-size: 16px;
-    color: #27ae60;
+    font-size: 12px;
     font-weight: 500;
+    color: #2c3e50;
+    text-align: center;
+    word-break: break-word;
+    line-height: 1.2;
 }
 
-.equipment-slot .slot-item:empty::before {
-    content: "비어있음";
-    color: #bdc3c7;
-}
-
-#inventory-items {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px;
-}
-
-.inventory-item {
+/* 장비 선택 모달 */
+#equipment-selection-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 320px;
     background: white;
     border-radius: 10px;
-    padding: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+}
+
+#equipment-selection-modal .modal-content {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+#equipment-selection-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.equipment-selection-item {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     border: 1px solid #ecf0f1;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.inventory-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+.equipment-selection-item.equipped {
+    border-color: #27ae60;
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(39, 174, 96, 0.05));
 }
 
-.item-name {
-    font-size: 14px;
+.equipment-selection-item.equipped:hover {
+    border-color: #229954;
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.15), rgba(39, 174, 96, 0.1));
+}
+
+.equipment-selection-image {
+    font-size: 32px;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.equipment-selection-info {
+    flex: 1;
+}
+
+.equipment-selection-name {
+    font-size: 16px;
     font-weight: 500;
     color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+.equipment-selection-effect {
+    font-size: 14px;
+    color: #27ae60;
+    margin-bottom: 4px;
+}
+
+.equipment-selection-count {
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+.no-equipment {
+    text-align: center;
+    padding: 40px;
+    color: #7f8c8d;
+    font-style: italic;
 }
 
 /* 설정 시스템 */
@@ -1149,406 +1308,6 @@ body {
     border: 2px solid #66bb6a;
 }
 
-
-
-/* [CHEAT MODE START] 치트 모드 스타일 시작 */
-#cheat-modal .modal-content {
-    max-height: 70vh;
-    overflow-y: auto;
-}
-
-.cheat-section {
-    margin-bottom: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 10px;
-}
-
-.cheat-section h3 {
-    font-size: 16px;
-    font-weight: bold;
-    color: #2c3e50;
-    margin-bottom: 12px;
-}
-
-.cheat-input-group {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-}
-
-.cheat-input-group.vertical {
-    flex-direction: column;
-}
-
-.cheat-button-row {
-    display: flex;
-    gap: 8px;
-}
-
-.cheat-input-group:last-child {
-    margin-bottom: 0;
-}
-
-.cheat-input-group input,
-.cheat-input-group select {
-    flex: 1;
-    padding: 10px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: 'Noto Sans KR', sans-serif;
-}
-
-.cheat-input-group input:focus,
-.cheat-input-group select:focus {
-    outline: none;
-    border-color: #3498db;
-}
-
-.cheat-btn {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: 'Noto Sans KR', sans-serif;
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-}
-
-.cheat-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-}
-
-.cheat-btn.full-width {
-    width: 100%;
-}
-
-.cheat-btn.danger {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-}
-
-.cheat-btn.danger:hover {
-    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
-}
-
-.cheat-warning {
-    text-align: center;
-    color: #e67e22;
-    font-size: 13px;
-    margin-top: 15px;
-    padding: 10px;
-    background: #fef5e7;
-    border-radius: 8px;
-    border: 1px solid #f39c12;
-}
-
-/* 치트 모드 활성화 표시 */
-#top-bar.cheat-active {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    animation: cheat-pulse 2s infinite;
-}
-
-@keyframes cheat-pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.8;
-    }
-}
-/* [CHEAT MODE END] 치트 모드 스타일 끝 */
-/* ============================================ */
-
-/* ============================================ */
-/* [ADMIN MODE START] 관리자 모드 스타일 */
-/* ============================================ */
-#admin-modal .modal-content {
-    max-width: 1000px;
-    max-height: 85vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.admin-tabs {
-    display: flex;
-    gap: 5px;
-    border-bottom: 2px solid #e0e0e0;
-    padding-bottom: 0;
-    flex-wrap: wrap;
-    flex-shrink: 0;
-}
-
-.admin-tab-btn {
-    padding: 10px 15px;
-    border: none;
-    background: #f5f5f5;
-    border-radius: 5px 5px 0 0;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.2s;
-    white-space: nowrap;
-}
-
-.admin-tab-btn:hover {
-    background: #e0e0e0;
-}
-
-.admin-tab-btn.active {
-    background: #4CAF50;
-    color: white;
-    font-weight: bold;
-}
-
-.admin-file-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background: #f0f0f0;
-    border-radius: 5px;
-    margin: 10px 0;
-    flex-shrink: 0;
-}
-
-#admin-current-file {
-    font-weight: bold;
-    color: #2196F3;
-}
-
-#admin-item-count {
-    color: #666;
-    font-size: 13px;
-}
-
-#admin-editor-container {
-    flex: 1;
-    overflow-y: auto;
-    margin: 10px 0;
-}
-
-.admin-file-content {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.admin-file-content.hidden {
-    display: none;
-}
-
-.admin-controls {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    padding: 10px;
-    background: #f9f9f9;
-    border-radius: 5px;
-    border: 1px dashed #ccc;
-}
-
-.admin-btn-small {
-    padding: 8px 15px;
-    border: none;
-    background: #4CAF50;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.2s;
-}
-
-.admin-btn-small:hover {
-    background: #45a049;
-}
-
-.admin-data-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.admin-data-item {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.admin-data-item-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.admin-data-item-title {
-    font-weight: bold;
-    font-size: 15px;
-    color: #333;
-}
-
-.admin-data-item-actions {
-    display: flex;
-    gap: 5px;
-}
-
-.admin-data-item-actions button {
-    padding: 5px 12px;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: all 0.2s;
-}
-
-.admin-edit-btn {
-    background: #FF9800;
-    color: white;
-}
-
-.admin-edit-btn:hover {
-    background: #F57C00;
-}
-
-.admin-delete-btn {
-    background: #f44336;
-    color: white;
-}
-
-.admin-delete-btn:hover {
-    background: #d32f2f;
-}
-
-.admin-save-btn {
-    background: #4CAF50;
-    color: white;
-}
-
-.admin-save-btn:hover {
-    background: #45a049;
-}
-
-.admin-cancel-btn {
-    background: #9E9E9E;
-    color: white;
-}
-
-.admin-cancel-btn:hover {
-    background: #757575;
-}
-
-.admin-data-item-body {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 10px;
-}
-
-.admin-field {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.admin-field-label {
-    font-size: 12px;
-    color: #666;
-    font-weight: 500;
-}
-
-.admin-field input,
-.admin-field select,
-.admin-field textarea {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    font-size: 13px;
-}
-
-.admin-field textarea {
-    resize: vertical;
-    min-height: 60px;
-    font-family: 'Courier New', monospace;
-}
-
-.admin-field input:disabled,
-.admin-field select:disabled,
-.admin-field textarea:disabled {
-    background: #f5f5f5;
-    cursor: not-allowed;
-}
-
-.admin-actions {
-    display: flex;
-    gap: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #eee;
-    flex-shrink: 0;
-}
-
-.admin-btn {
-    flex: 1;
-    padding: 10px 20px;
-    border: none;
-    background: #2196F3;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-}
-
-.admin-btn:hover {
-    background: #1976D2;
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-    html, body {
-        height: 100vh;
-        overflow: hidden;
-    }
-    
-    #game-container {
-        max-width: 100%;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    #admin-modal .modal-content {
-        max-width: 100%;
-        max-height: 90vh;
-    }
-    
-    .admin-tabs {
-        gap: 3px;
-    }
-    
-    .admin-tab-btn {
-        padding: 8px 10px;
-        font-size: 11px;
-    }
-    
-    .admin-data-item-body {
-        grid-template-columns: 1fr;
-    }
-    
-    .admin-actions {
-        flex-direction: column;
-    }
-}
-/* [ADMIN MODE END] 관리자 모드 스타일 끝 */
-/* ============================================ */
-
 /* 아이템 설명 모달 */
 #item-description-modal {
     position: absolute;
@@ -1710,6 +1469,124 @@ body {
     display: flex;
     align-items: center;
     font-weight: 500;
+}
+
+/* 장비 모달 특별 스타일 */
+#equipment-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#equipment-modal #equipment-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 15px;
+}
+
+.equipment-slot-item {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 2px solid #ecf0f1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    aspect-ratio: 1;
+}
+
+.equipment-slot-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    border-color: #3498db;
+}
+
+.slot-image {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.slot-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: #2c3e50;
+    text-align: center;
+    word-break: break-word;
+    line-height: 1.2;
+}
+
+/* 장착된 장비 목록 */
+#equipped-equipment {
+    margin-top: 20px;
+}
+
+#equipped-equipment h3 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.equipped-equipment-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.equipped-equipment-item {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid #ecf0f1;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.equipped-equipment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    border-color: #e74c3c;
+}
+
+.equipped-equipment-image {
+    font-size: 32px;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.equipped-equipment-info {
+    flex: 1;
+}
+
+.equipped-equipment-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+.equipped-equipment-effect {
+    font-size: 14px;
+    color: #27ae60;
+    margin-bottom: 4px;
+}
+
+.equipped-equipment-slot {
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+.no-equipped {
+    text-align: center;
+    padding: 40px;
+    color: #7f8c8d;
+    font-style: italic;
 }
 
 .settings-control #sound-status {

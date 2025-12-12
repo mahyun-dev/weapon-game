@@ -1,5 +1,5 @@
 // 칭호 데이터
-const TITLES = [
+var TITLES = [
     {
         id: "beginner_adventurer",
         name: "초보 모험가",
@@ -132,7 +132,7 @@ const TITLES = [
 ];
 
 // 칭호 희귀도 색상
-const TITLE_RARITIES = {
+var TITLE_RARITIES = {
     common: "#95a5a6",
     uncommon: "#27ae60",
     rare: "#3498db",
@@ -140,3 +140,5 @@ const TITLE_RARITIES = {
     legendary: "#e67e22",
     mythical: "#e74c3c"
 };
+
+console.log('✅ TITLES 데이터 로드됨');

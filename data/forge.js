@@ -1,5 +1,18 @@
 // 조합소 조합 데이터
-const FORGE_RECIPES = [
+var FORGE_RECIPES = [
+    {
+        id: "legendary_combination",
+        name: "크리티컬 결정 조합",
+        materials: [
+            {item: "blessing_crystal", count: 15}
+        ],
+        result: {
+            item: "luck_necklace",
+            count: 1
+        },
+        effect: "criticalChance",
+        value: 10
+    },
     {
         id: "evil_soul_crystal",
         name: "사악한 영혼 결정",
@@ -76,4 +89,6 @@ const FORGE_RECIPES = [
 ];
 
 // MATERIAL_DROPS는 items.js의 ITEMS.materials를 사용하도록 호환성 유지
-const MATERIAL_DROPS = ITEMS.materials;
+var MATERIAL_DROPS = ITEMS.materials;
+
+console.log('✅ FORGE_RECIPES 데이터 로드됨');

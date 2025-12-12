@@ -83,27 +83,81 @@
 - **Vanilla JavaScript**: 게임 로직, 상태 관리
 - **LocalStorage**: 클라이언트 측 데이터 저장
 
+### 아키텍처
+- **모듈 시스템**: ES6 클래스 기반 모듈화
+- **컴포지션 패턴**: 시스템 간 느슨한 결합
+- **위임 패턴**: 메인 클래스에서 서브시스템 접근
+
 ### 데이터 관리
 - **JSON 파일**: 게임 데이터 관리
 - **모듈화**: 각 시스템별 분리된 데이터 파일
+- **런타임 검증**: 모듈 로더를 통한 데이터 무결성 확인
 
 ## 📁 프로젝트 구조
 
 ```
 sword-upgrade-game/
-├── index.html          # 메인 HTML 파일
-├── style.css           # 스타일시트
-├── script.js           # 메인 게임 로직
-├── data/               # 게임 데이터
-│   ├── items.js        # 아이템 데이터 (특수, 재료, 방지권)
-│   ├── weapons.js      # 무기 데이터
-│   ├── shop.js         # 상점 데이터
-│   ├── forge.js        # 대장간 데이터
-│   ├── equipment.js    # 장비 데이터
-│   ├── achievements.js # 업적 데이터
-│   └── titles.js       # 칭호 데이터
-├── README.md           # 프로젝트 설명
-└── ADMIN_GUIDE.md      # 관리자 데이터 수정 가이드
+├── index.html              # 메인 HTML 파일
+├── style.css               # 스타일시트
+├── manifest.json           # PWA 매니페스트
+├── service-worker.js       # 서비스 워커
+├── data/                   # 게임 데이터
+│   ├── items.js            # 아이템 데이터 (특수, 재료, 방지권)
+│   ├── weapons.js          # 무기 데이터
+│   ├── shop.js             # 상점 데이터
+│   ├── forge.js            # 대장간 데이터
+│   ├── equipment.js        # 장비 데이터
+│   ├── achievements.js     # 업적 데이터
+│   └── titles.js           # 칭호 데이터
+├── module/                 # 모듈화된 게임 시스템
+│   ├── utils.js            # 공통 유틸리티 함수
+│   ├── core.js             # 메인 게임 클래스 및 시스템 통합
+│   ├── sound.js            # 사운드 시스템
+│   ├── upgrade.js          # 강화 시스템
+│   ├── shop.js             # 상점 시스템
+│   ├── inventory.js        # 창고/장비 시스템
+│   ├── forge.js            # 대장간 시스템
+│   ├── title.js            # 칭호 시스템
+│   ├── achievements.js     # 업적 시스템
+│   └── module-loader.js    # 모듈 로더
+├── assets/                 # 게임 리소스
+│   ├── icons/              # 앱 아이콘
+│   ├── sounds/             # 효과음 및 BGM
+│   └── weapons/            # 무기 이미지
+├── generate-icons.html     # 아이콘 생성 도구
+├── PWA_GUIDE.md           # PWA 배포 가이드
+├── README.md              # 프로젝트 설명
+└── ADMIN_GUIDE.md         # 관리자 데이터 수정 가이드
+```
+
+### 🏗️ 모듈 시스템 아키텍처
+
+**모듈화 장점:**
+- ✅ **코드 분리**: 단일 파일 → 독립적 모듈로 분리
+- ✅ **유지보수성**: 각 시스템별 독립적 관리
+- ✅ **가독성**: 기능별 파일로 로직 파악 용이
+- ✅ **협업 용이**: 여러 개발자가 동시에 작업 가능
+- ✅ **테스트 용이**: 각 모듈별 단위 테스트 가능
+
+**모듈 구조:**
+```javascript
+// 각 시스템은 독립적인 클래스로 구현
+class SoundSystem { /* 사운드 관리 */ }
+class UpgradeSystem { /* 강화 로직 */ }
+class ShopSystem { /* 상점 기능 */ }
+class InventorySystem { /* 창고/장비 */ }
+class ForgeSystem { /* 대장간 */ }
+class TitleSystem { /* 칭호 */ }
+class AchievementSystem { /* 업적 */ }
+
+// 메인 클래스는 시스템들을 통합
+class SwordUpgradeGame {
+    constructor() {
+        this.soundSystem = new SoundSystem(this);
+        this.upgradeSystem = new UpgradeSystem(this);
+        // ...
+    }
+}
 ```
 
 ## 🎯 게임 목표

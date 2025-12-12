@@ -1,5 +1,5 @@
 // 무기 데이터
-const WEAPONS = [
+var WEAPONS = [
     {
         level: 0,
         name: "녹슨 검",
@@ -466,3 +466,5 @@ const WEAPONS = [
         }
     }
 ];
+
+console.log('✅ WEAPONS 데이터 로드됨');

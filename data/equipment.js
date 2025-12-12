@@ -1,5 +1,5 @@
 // 장비 데이터
-const EQUIPMENT = [
+var EQUIPMENT = [
     {
         id: "golden_ring",
         name: "황금 손길의 반지",
@@ -93,7 +93,7 @@ const EQUIPMENT = [
 ];
 
 // 장비 슬롯 정의
-const EQUIPMENT_SLOTS = {
+var EQUIPMENT_SLOTS = {
     head: "머리",
     necklace: "목걸이",
     ring: "반지",
@@ -106,7 +106,7 @@ const EQUIPMENT_SLOTS = {
 };
 
 // 랜덤 상자 데이터
-const RANDOM_BOXES = {
+var RANDOM_BOXES = {
     normal: {
         name: "일반 상자",
         price: 10000000,
@@ -150,3 +150,5 @@ const RANDOM_BOXES = {
         ]
     }
 };
+
+console.log('✅ EQUIPMENT 및 EQUIPMENT_SLOTS 데이터 로드됨');

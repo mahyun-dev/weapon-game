@@ -1,5 +1,5 @@
 // 상점 데이터
-const SHOP_ITEMS = {
+var SHOP_ITEMS = {
     warpItems: [
         {
             id: "warp_x1",
@@ -204,3 +204,5 @@ const SHOP_ITEMS = {
         }
     ]
 };
+
+console.log('✅ SHOP_ITEMS 데이터 로드됨');

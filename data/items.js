@@ -1,5 +1,5 @@
 // 아이템 데이터
-const ITEMS = {
+var ITEMS = {
     // 특수 아이템 (상점/업적 보상)
     special: {
         golden_hammer: {
@@ -192,3 +192,5 @@ const ITEM_RARITIES = {
     legendary: '#e67e22',
     mythical: '#e74c3c'
 };
+
+console.log('✅ ITEMS 데이터 로드됨');
