@@ -4,6 +4,19 @@ class InventorySystem {
         this.game = game;
     }
 
+    // 등급을 한글로 변환
+    getRarityInKorean(rarity) {
+        const rarityMap = {
+            'common': '일반',
+            'uncommon': '고급',
+            'rare': '희귀',
+            'epic': '영웅',
+            'legendary': '전설',
+            'mythical': '신화'
+        };
+        return rarityMap[rarity] || rarity;
+    }
+
     // 장비 아이콘 가져오기
     getEquipmentIcon(slot) {
         switch (slot) {
@@ -197,25 +210,25 @@ class InventorySystem {
         const equipment = EQUIPMENT.find(item => item.id === itemId);
         if (equipment) {
             description = this.getEquipmentDescription(equipment);
-            rarity = equipment.rarity;
+            rarity = this.getRarityInKorean(equipment.rarity);
             itemType = '장비 아이템';
         }
         // 특수 아이템
         else if (ITEMS.special[itemId]) {
             description = ITEMS.special[itemId].description;
-            rarity = ITEMS.special[itemId].rarity;
+            rarity = this.getRarityInKorean(ITEMS.special[itemId].rarity);
             itemType = '특별 아이템';
         }
         // 재료 아이템
         else if (ITEMS.materials[itemId]) {
             description = ITEMS.materials[itemId].description;
-            rarity = ITEMS.materials[itemId].rarity;
+            rarity = this.getRarityInKorean(ITEMS.materials[itemId].rarity);
             itemType = '재료 아이템';
         }
         // 방지권 아이템
         else if (ITEMS.protections[itemId]) {
             description = ITEMS.protections[itemId].description;
-            rarity = ITEMS.protections[itemId].rarity;
+            rarity = this.getRarityInKorean(ITEMS.protections[itemId].rarity);
             itemType = '방지권 아이템';
         }
 
@@ -486,7 +499,7 @@ class InventorySystem {
         // 희귀도에 따른 알림 색상
         const notificationType = selectedEquipment.rarity === 'epic' || selectedEquipment.rarity === 'legendary' ? 'warning' : 'success';
         this.updateInventoryGrid();
-        this.game.showNotification(`${selectedEquipment.name}을(를) 얻었습니다! [${selectedEquipment.rarity}]`, notificationType);
+        this.game.showNotification(`${selectedEquipment.name}을(를) 얻었습니다! [${this.getRarityInKorean(selectedEquipment.rarity)}]`, notificationType);
     }
 
     // 장비 슬롯 클릭 처리
@@ -552,6 +565,7 @@ class InventorySystem {
                     <div class="equipment-selection-image">${itemImage}</div>
                     <div class="equipment-selection-info">
                         <div class="equipment-selection-name">${equipment.name}</div>
+                        <div class="equipment-selection-rarity rarity-${equipment.rarity.toLowerCase()}">${this.getRarityInKorean(equipment.rarity)}</div>
                         <div class="equipment-selection-effect">${this.getEquipmentDescription(equipment)}</div>
                         <div class="equipment-selection-count">${isEquipped ? '장착 중' : `보유: x${count}`}</div>
                     </div>

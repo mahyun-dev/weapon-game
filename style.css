@@ -1592,3 +1592,28 @@ body {
 .settings-control #sound-status {
     font-size: 16px;
 }
+
+/* 등급 색상 스타일 */
+.rarity-common {
+    color: #95a5a6;
+}
+
+.rarity-uncommon {
+    color: #27ae60;
+}
+
+.rarity-rare {
+    color: #3498db;
+}
+
+.rarity-epic {
+    color: #9b59b6;
+}
+
+.rarity-legendary {
+    color: #e67e22;
+}
+
+.rarity-mythical {
+    color: #e74c3c;
+}
